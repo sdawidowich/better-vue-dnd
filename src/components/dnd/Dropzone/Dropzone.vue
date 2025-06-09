@@ -6,34 +6,35 @@
 
     const props = defineProps<{
         onDrop?: (event: DndDragEvent) => boolean
-    }>()
+    }>();
 
-    const dropzoneEl: Ref<DOMElement> = ref(null)
-    const { isOutside } = useMouseInElement(dropzoneEl)
-    const eventBus = useEventBus()
+    const dropzoneEl: Ref<DOMElement> = ref(null);
+    const { isOutside } = useMouseInElement(dropzoneEl);
+    const eventBus = useEventBus();
+
 
     function OnDragEnd(event: DndDragEvent) {
         if (isOutside.value) {
-            return
+            return;
         }
 
         if (event.from !== dropzoneEl.value && event.item?.value && event.from) {
             if (props.onDrop && !props.onDrop(event)) {
-                return
+                return;
             }
 
-            event.from?.removeChild(event.item?.value)
-            dropzoneEl.value?.appendChild(event.item?.value)
+            event.from?.removeChild(event.item?.value);
+            dropzoneEl.value?.appendChild(event.item?.value);
         }
     }
 
     onMounted(() => {
-        eventBus.listen('draggable:enddrag', OnDragEnd)
-    })
+        eventBus.listen('draggable:enddrag', OnDragEnd);
+    });
 
     onUnmounted(() => {
-        eventBus.unlisten('draggable:enddrag', OnDragEnd)
-    })
+        eventBus.unlisten('draggable:enddrag', OnDragEnd);
+    });
 </script>
 
 <template>
