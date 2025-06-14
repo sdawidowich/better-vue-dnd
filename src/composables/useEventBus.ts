@@ -2,8 +2,9 @@ import mitt from 'mitt'
 import type { DndDragEvent } from '@/types/types'
 
 type Events = {
-    'draggable:startdrag': DndDragEvent
-    'draggable:enddrag': DndDragEvent
+    'draggable:startdrag': DndDragEvent;
+    'draggable:move': DndDragEvent;
+    'draggable:enddrag': DndDragEvent;
 }
 
 const emitter = mitt<Events>()

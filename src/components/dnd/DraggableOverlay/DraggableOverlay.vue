@@ -1,20 +1,19 @@
 <script setup lang="ts">
     import type { DOMElementBounds } from '@/types/types';
-    import { computed } from 'vue';
+    import { computed, type StyleValue } from 'vue';
 
     const props = defineProps<{
         visible: boolean;
         elBounds: DOMElementBounds;
-        transformX: number;
-        transformY: number;
+        transform: string;
     }>();
 
-    const style = computed(() => ({
+    const style = computed<StyleValue>(() => ({
         top: props.elBounds.top + 'px',
         left: props.elBounds.left + 'px',
         width: props.elBounds.width + 'px',
         height: props.elBounds.height + 'px',
-        transform: `translate(${props.transformX}px, ${props.transformY}px)`,
+        transform: props.transform,
     }));
 </script>
 
