@@ -1,0 +1,223 @@
+import type { Axis, DOMElement, DOMElementBounds, PointerType, Position } from '@/types/types'
+import { defaultWindow, isClient, toRefs, useElementBounding, useEventListener, useParentElement } from '@vueuse/core'
+import { computed, ref, toValue, type MaybeRefOrGetter, type Ref } from 'vue'
+import { useEventBus } from './useEventBus'
+
+export interface UseDraggableOptions {
+    /* Prevent events defaults */
+    preventDefault?: MaybeRefOrGetter<boolean>
+
+    /* Prevent events propagation */
+    stopPropagation?: MaybeRefOrGetter<boolean>
+
+    /* Whether dispatch events in capturing phase */
+    capture?: boolean
+
+    /* Element to attach `pointermove` and `pointerup` events to. */
+    draggingElement?: MaybeRefOrGetter<
+        HTMLElement | SVGElement | Window | Document | null | undefined
+    >
+
+    /* Element for calculating bounds (If not set, it will use the event's target). */
+    containerElement?: MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>
+
+    /* Handle that triggers the drag event */
+    handle?: MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>
+
+    /* Pointer types that listen to. */
+    pointerTypes?: PointerType[]
+
+    /* Initial position of the element. */
+    initialValue?: MaybeRefOrGetter<Position>
+
+    /* Callback when the dragging starts. Return `false` to prevent dragging. */
+    onStart?: (position: Position, event: PointerEvent) => void | false
+
+    /* Callback during dragging. */
+    onMove?: (position: Position, event: PointerEvent) => void
+
+    /* Callback when dragging end. */
+    onEnd?: (position: Position, event: PointerEvent) => void
+
+    /* Axis to drag on. */
+    axis?: Axis
+
+    /* Axis to drag on. */
+    snapToCursor?: MaybeRefOrGetter<boolean>
+
+    /* Disabled drag and drop. */
+    disabled?: MaybeRefOrGetter<boolean>
+
+    /*
+     * Mouse buttons that are allowed to trigger drag events.
+     *
+     * - `0`: Main button, usually the left button or the un-initialized state
+     * - `1`: Auxiliary button, usually the wheel button or the middle button (if present)
+     * - `2`: Secondary button, usually the right button
+     * - `3`: Fourth button, typically the Browser Back button
+     * - `4`: Fifth button, typically the Browser Forward button
+     *
+     */
+    buttons?: MaybeRefOrGetter<number[]>
+}
+
+export type UseDraggableReturn = ReturnType<typeof useDraggable>
+
+export function useDraggable(target: Ref<DOMElement>, options: UseDraggableOptions = {}) {
+    const {
+        pointerTypes,
+        preventDefault,
+        stopPropagation,
+        onMove,
+        onEnd,
+        onStart,
+        initialValue,
+        axis = 'both',
+        snapToCursor,
+        draggingElement = defaultWindow,
+        containerElement,
+        handle: draggingHandle = target,
+        buttons = [0],
+    } = options
+
+    const eventBus = useEventBus();
+    const { x: targetX, y: targetY, top: targetTop, left: targetLeft, width: targetWidth, height: targetHeight, update: updateTargetBounding } = useElementBounding(target);
+    const targetRect = computed<DOMElementBounds>(() => ({ x: targetX.value, y: targetY.value, width: targetWidth.value, height: targetHeight.value, top: targetTop.value, left: targetLeft.value }));
+    const transform = computed<string>(() => `translate(${position.value.x - targetX.value}px, ${position.value.y - targetY.value}px)`);
+    const position = ref<Position>(toValue(initialValue) ?? { x: 0, y: 0 });
+    const pressedDelta = ref<Position>();
+
+    const filterEvent = (e: PointerEvent) => {
+        if (pointerTypes) 
+            return pointerTypes.includes(e.pointerType as PointerType);
+        return true;
+    }
+
+    function updatePos(e: PointerEvent) {
+        if (!pressedDelta.value) 
+            return;
+
+        updateTargetBounding();
+        
+        const container = toValue(containerElement);
+        let { x, y } = position.value;
+        
+        if (axis === 'x' || axis === 'both') {
+            x = e.clientX - pressedDelta.value.x;
+
+            if (snapToCursor) {
+                x = e.clientX - (targetWidth.value / 2);
+            }
+            if (container) {
+                x = Math.min(Math.max(0, x), container.scrollWidth - targetWidth.value);
+            }
+        }
+        else {
+            x = targetLeft.value;
+        }
+
+        if (axis === 'y' || axis === 'both') {
+            y = e.clientY - pressedDelta.value.y
+            
+            if (snapToCursor) {
+                y = e.clientY - targetHeight.value / 2
+            }
+            if (container) {
+                y = Math.min(Math.max(0, y), container.scrollHeight - targetHeight.value)
+            }
+        } 
+        else {
+            y = targetTop.value
+        }
+
+        position.value = { x, y };
+    }
+
+    const handleEvent = (e: PointerEvent) => {
+        if (toValue(preventDefault)) 
+            e.preventDefault();
+        if (toValue(stopPropagation)) 
+            e.stopPropagation();
+    }
+
+    const start = (e: PointerEvent) => {
+        if (!toValue(buttons).includes(e.button)) 
+            return;
+        if (toValue(options.disabled) || !filterEvent(e)) 
+            return;
+
+        updateTargetBounding();
+
+        const container = toValue(containerElement);
+        const containerRect = container?.getBoundingClientRect?.();
+        const delta = {
+            x: e.clientX - (container
+                    ? targetLeft.value - containerRect!.left + container.scrollLeft
+                    : targetLeft.value),
+            y: e.clientY - (container
+                    ? targetTop.value - containerRect!.top + container.scrollTop
+                    : targetTop.value),
+        }
+
+        if (onStart?.(delta, e) === false) 
+            return;
+
+        pressedDelta.value = delta;
+        
+        updatePos(e);
+        handleEvent(e);
+
+        eventBus.emit('draggable:startdrag', { from: useParentElement(target).value, item: target });
+    }
+
+    const move = (e: PointerEvent) => {
+        if (toValue(options.disabled) || !filterEvent(e)) 
+            return;
+        
+        if (!pressedDelta.value) 
+            return;
+        
+        updatePos(e);
+        onMove?.(position.value, e);
+        handleEvent(e);
+
+        eventBus.emit('draggable:move', { from: useParentElement(target).value, item: target });
+    }
+
+    const end = (e: PointerEvent) => {
+        if (toValue(options.disabled) || !filterEvent(e)) 
+            return;
+
+        if (!pressedDelta.value) 
+            return;
+
+        pressedDelta.value = undefined;
+
+        eventBus.emit('draggable:enddrag', { from: useParentElement(target).value, item: target });
+        updateTargetBounding();
+
+        updatePos(e);
+        onEnd?.(position.value, e);
+        handleEvent(e);
+
+    }
+
+    if (isClient) {
+        const config = () => ({
+            capture: options.capture ?? true,
+            passive: !toValue(preventDefault),
+        });
+
+        useEventListener(draggingHandle, 'pointerdown', start, config);
+        useEventListener(draggingElement, 'pointermove', move, config);
+        useEventListener(draggingElement, 'pointerup', end, config);
+    }
+
+    return {
+        ...toRefs(position),
+        position,
+        isDragging: computed(() => !!pressedDelta.value),
+        rect: targetRect,
+        transform: transform,
+    }
+}
