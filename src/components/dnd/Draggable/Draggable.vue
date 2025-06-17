@@ -1,55 +1,39 @@
 <script setup lang="ts">
-    import type { Axis, DOMElement, Position } from '@/types/types'
-    import { ref } from 'vue'
+    import type { DOMElement } from '@/types/types'
+    import { computed, ref } from 'vue'
     import DraggableOverlay from '../DraggableOverlay/DraggableOverlay.vue';
-    import { useDraggable } from '@/composables/useDraggable';
+    import { useDraggable, type UseDraggableOptions } from '@/composables/useDraggable';
 
     const props = withDefaults(
         defineProps<{
-            disabled?: boolean,
-            stopPropagation?: boolean,
+            options?: UseDraggableOptions,
             asHandle?: boolean,
             overlay?: boolean,
-            snapToCursor?: boolean,
-            axis?: Axis,
-            onStart?: (position: Position, event: PointerEvent) => void | false,
-            onMove?: (position: Position, event: PointerEvent) => void,
-            onEnd?: (position: Position, event: PointerEvent) => void
         }>(),
         {
-            disabled: false,
-            stopPropagation: true,
+            options: () => ({}),
             asHandle: true,
             asOverlay: true,
-            snapToCursor: false,
-            axis: 'both',
-            onStart: undefined,
-            onMove: undefined,
-            onEnd: undefined
         },
     );
 
-    const el = ref<DOMElement>(null);
+    const valueModel = defineModel<Record<any, any> | undefined>('item');
 
-    const { rect, isDragging, transform } = useDraggable(el, {
-        disabled: () => props.disabled, 
-        stopPropagation: props.stopPropagation, 
-        onStart: props.onStart,
-        onMove: props.onMove,
-        onEnd: props.onEnd,
-        axis: props.axis,
-        snapToCursor: props.snapToCursor
-    });
+    const targetEl = ref<DOMElement>(null);
+    const overlayComponent = ref<InstanceType<typeof DraggableOverlay>>();
+    const overlayEl = computed<DOMElement>(() => overlayComponent.value ? overlayComponent.value.el : null);
+
+    const { rect, isDragging, transform } = useDraggable(targetEl, overlayEl, valueModel, props.options);
 </script>
 
 <template>
     <div
-        ref="el"
+        ref="targetEl"
         class="touch-none select-none cursor-pointer z-30"
     >
         <slot />
         <Teleport to="body">
-            <DraggableOverlay v-bind=$attrs :visible="isDragging" :el-bounds="rect" :transform="transform">
+            <DraggableOverlay ref="overlayComponent" v-bind=$attrs :visible="isDragging" :el-bounds="rect" :transform="transform">
                 <slot />
             </DraggableOverlay>
         </Teleport>

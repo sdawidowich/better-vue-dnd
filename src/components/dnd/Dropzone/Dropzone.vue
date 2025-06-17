@@ -1,55 +1,19 @@
 <script setup lang="ts">
-    import { useEventBus } from '@/composables/useEventBus'
+    import { useDroppable } from '@/composables/useDroppable';
     import type { DOMElement, DndDragEvent } from '@/types/types'
-    import { useMouseInElement } from '@vueuse/core'
-    import { onMounted, onUnmounted, ref, type Ref } from 'vue'
+    import { ref } from 'vue';
 
     const props = defineProps<{
+        onHover?: (event: DndDragEvent) => boolean,
         onDrop?: (event: DndDragEvent) => boolean
     }>();
 
-    const dropzoneEl: Ref<DOMElement> = ref(null);
-    const { isOutside } = useMouseInElement(dropzoneEl);
-    const eventBus = useEventBus();
+    const itemModel = defineModel<Record<any, any> | undefined>('item');
+    const dropzoneEl = ref<DOMElement>(null);
 
-    function OnMove(event: DndDragEvent) {
-        if (isOutside.value) {
-            return;
-        }
-
-        if (event.from !== dropzoneEl.value && event.item?.value && event.from) {
-            if (props.onDrop && !props.onDrop(event)) {
-                return;
-            }
-
-            event.from?.removeChild(event.item?.value);
-            dropzoneEl.value?.appendChild(event.item?.value);
-        }
-    }
-
-    function OnDragEnd(event: DndDragEvent) {
-        if (isOutside.value) {
-            return;
-        }
-
-        if (event.from !== dropzoneEl.value && event.item?.value && event.from) {
-            if (props.onDrop && !props.onDrop(event)) {
-                return;
-            }
-
-            event.from?.removeChild(event.item?.value);
-            dropzoneEl.value?.appendChild(event.item?.value);
-        }
-    }
-
-    onMounted(() => {
-        eventBus.listen('draggable:enddrag', OnDragEnd);
-        eventBus.listen('draggable:move', OnMove);
-    });
-
-    onUnmounted(() => {
-        eventBus.unlisten('draggable:enddrag', OnDragEnd);
-        eventBus.unlisten('draggable:move', OnMove);
+    useDroppable(dropzoneEl, itemModel, {
+        onHover: props.onHover,
+        onDrop: props.onDrop
     });
 </script>
 

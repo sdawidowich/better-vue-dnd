@@ -1,6 +1,6 @@
 import type { Axis, DOMElement, DOMElementBounds, PointerType, Position } from '@/types/types'
 import { defaultWindow, isClient, toRefs, useElementBounding, useEventListener, useParentElement } from '@vueuse/core'
-import { computed, ref, toValue, type MaybeRefOrGetter, type Ref } from 'vue'
+import { computed, ref, toValue, type MaybeRefOrGetter, type ModelRef, type Ref } from 'vue'
 import { useEventBus } from './useEventBus'
 
 export interface UseDraggableOptions {
@@ -14,9 +14,7 @@ export interface UseDraggableOptions {
     capture?: boolean
 
     /* Element to attach `pointermove` and `pointerup` events to. */
-    draggingElement?: MaybeRefOrGetter<
-        HTMLElement | SVGElement | Window | Document | null | undefined
-    >
+    draggingElement?: MaybeRefOrGetter<HTMLElement | SVGElement | Window | Document | null | undefined>
 
     /* Element for calculating bounds (If not set, it will use the event's target). */
     containerElement?: MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>
@@ -63,7 +61,7 @@ export interface UseDraggableOptions {
 
 export type UseDraggableReturn = ReturnType<typeof useDraggable>
 
-export function useDraggable(target: Ref<DOMElement>, options: UseDraggableOptions = {}) {
+export function useDraggable(target: Ref<DOMElement>, overlay: Ref<DOMElement>, value: ModelRef<Record<any, any> | undefined>, options: UseDraggableOptions = {}) {
     const {
         pointerTypes,
         preventDefault,
@@ -78,7 +76,7 @@ export function useDraggable(target: Ref<DOMElement>, options: UseDraggableOptio
         containerElement,
         handle: draggingHandle = target,
         buttons = [0],
-    } = options
+    } = options;
 
     const eventBus = useEventBus();
     const { x: targetX, y: targetY, top: targetTop, left: targetLeft, width: targetWidth, height: targetHeight, update: updateTargetBounding } = useElementBounding(target);
@@ -167,7 +165,7 @@ export function useDraggable(target: Ref<DOMElement>, options: UseDraggableOptio
         updatePos(e);
         handleEvent(e);
 
-        eventBus.emit('draggable:startdrag', { from: useParentElement(target).value, item: target });
+        eventBus.emit('draggable:startdrag', { from: useParentElement(target).value, targetEl: target, overlayEl: overlay, item: value });
     }
 
     const move = (e: PointerEvent) => {
@@ -181,7 +179,7 @@ export function useDraggable(target: Ref<DOMElement>, options: UseDraggableOptio
         onMove?.(position.value, e);
         handleEvent(e);
 
-        eventBus.emit('draggable:move', { from: useParentElement(target).value, item: target });
+        eventBus.emit('draggable:move', { from: useParentElement(target).value, targetEl: target, overlayEl: overlay, item: value });
     }
 
     const end = (e: PointerEvent) => {
@@ -193,13 +191,11 @@ export function useDraggable(target: Ref<DOMElement>, options: UseDraggableOptio
 
         pressedDelta.value = undefined;
 
-        eventBus.emit('draggable:enddrag', { from: useParentElement(target).value, item: target });
-        updateTargetBounding();
-
         updatePos(e);
         onEnd?.(position.value, e);
         handleEvent(e);
 
+        eventBus.emit('draggable:enddrag', { from: useParentElement(target).value, targetEl: target, overlayEl: overlay, item: value });
     }
 
     if (isClient) {
