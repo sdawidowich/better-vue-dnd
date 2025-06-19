@@ -9,15 +9,27 @@ export function useCollisionDetection(refEl: Ref<DOMElement>) {
             return false;
         }
 
-        const rect1 = refEl.value.getBoundingClientRect();
-        const rect2 = secondEl.getBoundingClientRect();
+        const refRect = refEl.value.getBoundingClientRect();
+        const secondRect = secondEl.getBoundingClientRect();
 
         return (
-            rect2.left < rect1.left + rect1.width &&
-            rect2.left + rect2.width > rect1.left &&
-            rect2.top < rect1.top + rect1.height &&
-            rect2.top + rect2.height > rect1.top
-        )
+            secondRect.left < refRect.left + refRect.width &&
+            secondRect.left + secondRect.width > refRect.left &&
+            secondRect.top < refRect.top + refRect.height &&
+            secondRect.top + secondRect.height > refRect.top
+        );
+    }
+
+    function getCenter(el: DOMElement): { x: number; y: number } | null {
+        if (!el) {
+            return null;
+        }
+
+        const rect = el.getBoundingClientRect();
+        return {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2
+        };
     }
 
     function closestElement(elements: DOMElement[]): DOMElement | null {
@@ -28,15 +40,19 @@ export function useCollisionDetection(refEl: Ref<DOMElement>) {
         let closest: DOMElement | null = null;
         let closestDistance = Infinity;
 
-        const rect1 = refEl.value.getBoundingClientRect();
-
         for (const el of elements) {
-            if (!el) continue;
+            if (!el) 
+                continue;
 
-            const rect2 = el.getBoundingClientRect();
+            const refRectCenter = getCenter(refEl.value);
+            const rect2Center = getCenter(el);
+
+            if (!refRectCenter || !rect2Center) {
+                continue;
+            }
             const distance = Math.sqrt(
-                Math.pow(rect1.left - rect2.left, 2) +
-                Math.pow(rect1.top - rect2.top, 2)
+                Math.pow(refRectCenter.x - rect2Center.x, 2) +
+                Math.pow(refRectCenter.y - rect2Center.y, 2)
             );
 
             if (distance < closestDistance) {

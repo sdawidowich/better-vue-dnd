@@ -17,7 +17,7 @@
         },
     );
 
-    const valueModel = defineModel<Record<any, any> | undefined>('item');
+    const valueModel = defineModel<Record<any, any> | undefined>('value');
 
     const targetEl = ref<DOMElement>(null);
     const overlayComponent = ref<InstanceType<typeof DraggableOverlay>>();

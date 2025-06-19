@@ -9,3 +9,4 @@ export type Constructor<T> = new (...args: any[]) => T;
 export type Position = { x: number; y: number; };
 export type PointerType = 'mouse' | 'touch' | 'pen';
 export type Axis = 'x' | 'y' | 'both';
+export type DndContainer = 'dropzone' | 'sortable';
