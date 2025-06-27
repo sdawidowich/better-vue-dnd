@@ -1,11 +1,12 @@
 <script setup lang="ts">
-    import type { DOMElement } from '@/types/types'
-    import { computed, ref } from 'vue'
+    import type { DOMElement, DraggableItem } from '@/types/types'
+    import { computed, inject, ref, type Ref } from 'vue'
     import DraggableOverlay from '../DraggableOverlay/DraggableOverlay.vue';
     import { useDraggable, type UseDraggableOptions } from '@/composables/useDraggable';
 
     const props = withDefaults(
         defineProps<{
+            value: DraggableItem,
             options?: UseDraggableOptions,
             asHandle?: boolean,
             overlay?: boolean,
@@ -17,18 +18,17 @@
         },
     );
 
-    const valueModel = defineModel<Record<any, any> | undefined>('value');
-
-    const targetEl = ref<DOMElement>(null);
+    const draggableEl = ref<DOMElement>();
     const overlayComponent = ref<InstanceType<typeof DraggableOverlay>>();
     const overlayEl = computed<DOMElement>(() => overlayComponent.value ? overlayComponent.value.el : null);
+    const containerId = inject<Ref<string | undefined> | undefined>('containerId');
 
-    const { rect, isDragging, transform } = useDraggable(targetEl, overlayEl, valueModel, props.options);
+    const { rect, isDragging, transform } = useDraggable(draggableEl, overlayEl, props.value, containerId, props.options);
 </script>
 
 <template>
     <div
-        ref="targetEl"
+        ref="draggableEl"
         class="touch-none select-none cursor-pointer z-30"
     >
         <slot />

@@ -1,7 +1,8 @@
-import type { Axis, DOMElement, DOMElementBounds, PointerType, Position } from '@/types/types'
-import { defaultWindow, isClient, toRefs, useElementBounding, useEventListener, useParentElement } from '@vueuse/core'
-import { computed, ref, toValue, type MaybeRefOrGetter, type ModelRef, type Ref } from 'vue'
+import type { Axis, DOMElement, DOMElementBounds, DraggableItem, PointerType, Position } from '@/types/types'
+import { defaultWindow, isClient, toRefs, useElementBounding, useEventListener } from '@vueuse/core'
+import { computed, onMounted, onUnmounted, ref, toValue, type DeepReadonly, type MaybeRefOrGetter, type Ref } from 'vue'
 import { useEventBus } from './useEventBus'
+import { useDndContext } from './useDndContext'
 
 export interface UseDraggableOptions {
     /* Prevent events defaults */
@@ -61,7 +62,13 @@ export interface UseDraggableOptions {
 
 export type UseDraggableReturn = ReturnType<typeof useDraggable>
 
-export function useDraggable(target: Ref<DOMElement>, overlay: Ref<DOMElement>, value: ModelRef<Record<any, any> | undefined>, options: UseDraggableOptions = {}) {
+export function useDraggable(
+    draggableEl: Ref<DOMElement>, 
+    overlayEl: DeepReadonly<Ref<DOMElement>>, 
+    value: DraggableItem, 
+    containerId: Ref<string | undefined> | undefined, 
+    options: UseDraggableOptions = {}) 
+{
     const {
         pointerTypes,
         preventDefault,
@@ -74,12 +81,13 @@ export function useDraggable(target: Ref<DOMElement>, overlay: Ref<DOMElement>, 
         snapToCursor,
         draggingElement = defaultWindow,
         containerElement,
-        handle: draggingHandle = target,
+        handle: draggingHandle = draggableEl,
         buttons = [0],
     } = options;
 
     const eventBus = useEventBus();
-    const { x: targetX, y: targetY, top: targetTop, left: targetLeft, width: targetWidth, height: targetHeight, update: updateTargetBounding } = useElementBounding(target);
+    const dndContext = useDndContext();
+    const { x: targetX, y: targetY, top: targetTop, left: targetLeft, width: targetWidth, height: targetHeight, update: updateTargetBounding } = useElementBounding(draggableEl);
     const targetRect = computed<DOMElementBounds>(() => ({ x: targetX.value, y: targetY.value, width: targetWidth.value, height: targetHeight.value, top: targetTop.value, left: targetLeft.value }));
     const transform = computed<string>(() => `translate(${position.value.x - targetX.value}px, ${position.value.y - targetY.value}px)`);
     const position = ref<Position>(toValue(initialValue) ?? { x: 0, y: 0 });
@@ -165,7 +173,12 @@ export function useDraggable(target: Ref<DOMElement>, overlay: Ref<DOMElement>, 
         updatePos(e);
         handleEvent(e);
 
-        eventBus.emit('draggable:startdrag', { from: useParentElement(target).value, targetEl: target, overlayEl: overlay, item: value });
+        eventBus.emit('draggable:startdrag', { 
+            activeId: value.id, 
+            activeContainerId: containerId?.value, 
+            containerOver: dndContext.getContainerOver(overlayEl), 
+            draggableOver: dndContext.getDraggableOver(overlayEl)
+        });
     }
 
     const move = (e: PointerEvent) => {
@@ -179,7 +192,12 @@ export function useDraggable(target: Ref<DOMElement>, overlay: Ref<DOMElement>, 
         onMove?.(position.value, e);
         handleEvent(e);
 
-        eventBus.emit('draggable:move', { from: useParentElement(target).value, targetEl: target, overlayEl: overlay, item: value });
+        eventBus.emit('draggable:move', {
+            activeId: value.id,
+            activeContainerId: containerId?.value,
+            containerOver: dndContext.getContainerOver(overlayEl),
+            draggableOver: dndContext.getDraggableOver(overlayEl),
+        });
     }
 
     const end = (e: PointerEvent) => {
@@ -195,7 +213,12 @@ export function useDraggable(target: Ref<DOMElement>, overlay: Ref<DOMElement>, 
         onEnd?.(position.value, e);
         handleEvent(e);
 
-        eventBus.emit('draggable:enddrag', { from: useParentElement(target).value, targetEl: target, overlayEl: overlay, item: value });
+        eventBus.emit('draggable:enddrag', {
+            activeId: value.id,
+            activeContainerId: containerId?.value,
+            containerOver: dndContext.getContainerOver(overlayEl),
+            draggableOver: dndContext.getDraggableOver(overlayEl),
+        });
     }
 
     if (isClient) {
@@ -208,6 +231,16 @@ export function useDraggable(target: Ref<DOMElement>, overlay: Ref<DOMElement>, 
         useEventListener(draggingElement, 'pointermove', move, config);
         useEventListener(draggingElement, 'pointerup', end, config);
     }
+    
+    onMounted(() => {
+        if (draggableEl.value) {
+            dndContext.registerDraggable(draggableEl, value.id);
+        }
+    });
+
+    onUnmounted(() => {
+        dndContext.unregisterDraggable(value.id);
+    });
 
     return {
         ...toRefs(position),

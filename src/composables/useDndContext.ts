@@ -1,93 +1,115 @@
-import Dropzone from '@/components/dnd/Dropzone/Dropzone.vue';
-import type SortableContainer from '@/components/sortable/SortableContainer/SortableContainer.vue';
-import type { DndDragEvent } from '@/types/types'
+import type { DndDragEvent, DroppableOptions, DndContainer, DndDraggable, DOMElement } from '@/types/types'
 import { defineStore } from 'pinia';
-import { onMounted, onUnmounted, ref, useId, type ComponentPublicInstance, type Ref } from 'vue';
+import { onMounted, onUnmounted, ref, useId, type DeepReadonly, type Ref} from 'vue';
 import { useCollisionDetection } from './useCollisionDetection';
 import { useEventBus } from './useEventBus';
-
-type DndContainer = {
-    id: string;
-    instance: ComponentPublicInstance;
-    items: Ref<Record<string, any>[]>;
-    onMove?: (event: DndDragEvent) => void;
-    onDrop?: (event: DndDragEvent) => boolean;
-    onHover?: (event: DndDragEvent) => void;
-}
 
 export type UseDndContextReturn = ReturnType<typeof useDndContext>;
 
 export const useDndContext = defineStore('dndContext', () => {
     const eventBus = useEventBus();
+    const containers = ref<DndContainer[]>([]);
+    const draggables = ref<DndDraggable[]>([]);
+    const active = ref<string | undefined>();
 
-    const containers = ref<Record<string, DndContainer>>({});
-
-    function RegisterDropzone(instance: InstanceType<typeof Dropzone>) {
+    function registerContainer(el: Ref<DOMElement>, options: DroppableOptions) {
         const id = useId();
-        containers.value[id] = {
-            "id": id,
-            "instance": instance,
-
-        }
+        containers.value.push({
+            id: id,
+            el: el.value,
+            onMove: options.onMove,
+            onDrop: options.onDrop,
+            onHover: options.onHover,
+        });
 
         return id;
     }
+    
+    function registerDraggable(el: Ref<DOMElement>, id: string) {
+        draggables.value.push({
+            id: id,
+            el: el.value,
+        });
+    }
 
-    function RegisterSortableContainer(instance: InstanceType<typeof SortableContainer>) {
-        const id = useId();
-        sortableContainers.value[id] = instance;
+    function unregisterContainer(id: string) {
+        const index = containers.value.findIndex((container) => container.id === id);
+        if (index !== -1) {
+            containers.value.splice(index, 1);
+        }
+    }
 
-        return id;
+    function unregisterDraggable(id: string) {
+        const index = draggables.value.findIndex((draggable) => draggable.id === id);
+        if (index !== -1) {
+            draggables.value.splice(index, 1);
+        }
+    }
+
+    function getContainerOver(overlay: DeepReadonly<Ref<DOMElement>>) : string | undefined {
+        const collisionDetection = useCollisionDetection(overlay);
+        const closestIndex = collisionDetection.closestElement(Object.values(containers.value).map(dz => dz.el));
+        const closestContainer = closestIndex !== null ? containers.value[closestIndex] : null;
+
+        if (!closestContainer || !collisionDetection.collidesWith(closestContainer.el)) {
+            return;
+        }
+
+        return closestContainer.id;
+    }
+
+    function getDraggableOver(overlay: DeepReadonly<Ref<DOMElement>>) : string | undefined {
+        const collisionDetection = useCollisionDetection(overlay);
+        const closestIndex = collisionDetection.closestElement(Object.values(draggables.value).map(db => db.el));
+        const closestDraggable = closestIndex !== null ? draggables.value[closestIndex] : null;
+
+        if (!closestDraggable || !collisionDetection.collidesWith(closestDraggable.el)) {
+            return;
+        }
+
+        return closestDraggable.id;
     }
 
     function SwapContainer(event: DndDragEvent) {
-        const collisionDetection = useCollisionDetection(event.overlayEl);
-        const closestDropzone = collisionDetection.closestElement(Object.values(dropzones.value).map(dz => dz.$el));
+        console.log(event);
+    }
 
-        if (!collisionDetection.collidesWith(closestDropzone)) {
-            return;
-        }
-        
-        if (event.from !== target.value && event.targetEl.value && event.from) {
-            if (onDrop && !onDrop(event)) {
-                return;
-            }
-
-            event.from?.removeChild(event.targetEl.value);
-            target.value?.appendChild(event.targetEl.value);
-        }
+    function OnDragStart(event: DndDragEvent) {
+        active.value = event.activeId;
     }
 
     function OnMove(event: DndDragEvent) {
-        if (!collisionDetection.collidesWith(event.overlayEl.value) || item.value !== undefined) {
-            return;
+        if (event.activeContainerId !== event.containerOver) {
         }
-
-        onHover?.(event);
-
-        SwapContainer(event);
     }
 
     function OnDragEnd(event: DndDragEvent) {
-        if (!collisionDetection.collidesWith(event.overlayEl.value) || item.value !== undefined) {
-            return;
+        active.value = undefined;
+        if (event.activeContainerId !== event.containerOver) {
+            SwapContainer(event);
         }
 
-        SwapContainer(event);
+        console.log(event);
     }
 
     onMounted(() => {
+        eventBus.listen('draggable:startdrag', OnDragStart);
         eventBus.listen('draggable:enddrag', OnDragEnd);
         eventBus.listen('draggable:move', OnMove);
     });
 
     onUnmounted(() => {
+        eventBus.unlisten('draggable:startdrag', OnDragStart);
         eventBus.unlisten('draggable:enddrag', OnDragEnd);
         eventBus.unlisten('draggable:move', OnMove);
     });
 
     return {
-        RegisterDropzone,
-        RegisterSortableContainer,
-    }
+        registerContainer,
+        registerDraggable,
+        unregisterContainer,
+        unregisterDraggable,
+        getContainerOver,
+        getDraggableOver,
+    };
 });

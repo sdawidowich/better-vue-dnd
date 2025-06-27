@@ -27,7 +27,7 @@
 
 <template>
     <Transition name="drag">
-        <div v-if="visible" ref="el" class="touch-none fixed select-none cursor-pointer z-20 drag-overlay" :style="style">
+        <div v-if="visible" ref="el" class="touch-none fixed select-none cursor-pointer z-[1000] drag-overlay" :style="style">
             <slot />
         </div>
     </Transition>

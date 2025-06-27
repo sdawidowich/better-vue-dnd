@@ -1,9 +1,9 @@
 import type { DOMElement } from '@/types/types'
-import { type Ref } from 'vue'
+import { type DeepReadonly, type Ref } from 'vue'
 
 export type UseCollisionDetectionReturn = ReturnType<typeof useCollisionDetection>
 
-export function useCollisionDetection(refEl: Ref<DOMElement>) {
+export function useCollisionDetection(refEl: DeepReadonly<Ref<DOMElement>>) {
     function collidesWith(secondEl: DOMElement): boolean {
         if (!refEl.value || !secondEl) {
             return false;
@@ -20,7 +20,7 @@ export function useCollisionDetection(refEl: Ref<DOMElement>) {
         );
     }
 
-    function getCenter(el: DOMElement): { x: number; y: number } | null {
+    function getCenter(el: DeepReadonly<DOMElement>): { x: number; y: number } | null {
         if (!el) {
             return null;
         }
@@ -32,23 +32,23 @@ export function useCollisionDetection(refEl: Ref<DOMElement>) {
         };
     }
 
-    function closestElement(elements: DOMElement[]): DOMElement | null {
+    function closestElement(elements: DeepReadonly<DOMElement[]>): number | null {
         if (!refEl.value || elements.length === 0) {
             return null;
         }
 
-        let closest: DOMElement | null = null;
+        let closest: number = 0;
         let closestDistance = Infinity;
 
-        for (const el of elements) {
+        elements.forEach((el, index) => {
             if (!el) 
-                continue;
+                return;
 
             const refRectCenter = getCenter(refEl.value);
             const rect2Center = getCenter(el);
 
             if (!refRectCenter || !rect2Center) {
-                continue;
+                return;
             }
             const distance = Math.sqrt(
                 Math.pow(refRectCenter.x - rect2Center.x, 2) +
@@ -57,9 +57,9 @@ export function useCollisionDetection(refEl: Ref<DOMElement>) {
 
             if (distance < closestDistance) {
                 closestDistance = distance;
-                closest = el;
+                closest = index;
             }
-        }
+        });
 
         return closest;
     }
