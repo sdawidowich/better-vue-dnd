@@ -1,11 +1,11 @@
 <script setup lang="ts">
     import { useDropzone } from '@/composables/useDropzone';
-    import type { DraggableItem, DroppableOptions } from '@/types/types'
-    import { provide, ref, type ComponentPublicInstance, type Ref } from 'vue';
+    import type { DOMElement, DraggableItem, DroppableOptions } from '@/types/types'
+    import { provide, ref, useTemplateRef, type Ref } from 'vue';
 
     const props = defineProps<DroppableOptions>();
 
-    const containerEl = ref<ComponentPublicInstance>();
+    const containerEl = useTemplateRef<DOMElement>("containerEl");
     const { containerId } = useDropzone(containerEl, props);
     const item = ref<DraggableItem | undefined>(undefined);
 

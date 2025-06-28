@@ -1,6 +1,6 @@
-import type { DndDragEvent, DroppableOptions, DndContainer, DndDraggable, DOMElement } from '@/types/types'
+import type { DndDragEvent, DroppableOptions, DndContainer, DndDraggable, DOMElement, DraggableItem } from '@/types/types'
 import { defineStore } from 'pinia';
-import { onMounted, onUnmounted, ref, useId, type DeepReadonly, type Ref} from 'vue';
+import { computed, onMounted, onUnmounted, ref, useId, type DeepReadonly, type Ref} from 'vue';
 import { useCollisionDetection } from './useCollisionDetection';
 import { useEventBus } from './useEventBus';
 
@@ -8,48 +8,43 @@ export type UseDndContextReturn = ReturnType<typeof useDndContext>;
 
 export const useDndContext = defineStore('dndContext', () => {
     const eventBus = useEventBus();
-    const containers = ref<DndContainer[]>([]);
-    const draggables = ref<DndDraggable[]>([]);
+    const containers = ref<Record<string, DndContainer>>({});
+    const draggables = ref<Record<string, DndDraggable>>({});
     const active = ref<string | undefined>();
 
     function registerContainer(el: Ref<DOMElement>, options: DroppableOptions) {
         const id = useId();
-        containers.value.push({
+        containers.value[id] = {
             id: id,
             el: el.value,
             onMove: options.onMove,
             onDrop: options.onDrop,
             onHover: options.onHover,
-        });
+        };
 
         return id;
     }
     
     function registerDraggable(el: Ref<DOMElement>, id: string) {
-        draggables.value.push({
+        draggables.value[id] = {
             id: id,
             el: el.value,
-        });
+        };
     }
 
     function unregisterContainer(id: string) {
-        const index = containers.value.findIndex((container) => container.id === id);
-        if (index !== -1) {
-            containers.value.splice(index, 1);
-        }
+        delete containers.value[id];
     }
 
     function unregisterDraggable(id: string) {
-        const index = draggables.value.findIndex((draggable) => draggable.id === id);
-        if (index !== -1) {
-            draggables.value.splice(index, 1);
-        }
+        delete draggables.value[id];
     }
 
     function getContainerOver(overlay: DeepReadonly<Ref<DOMElement>>) : string | undefined {
         const collisionDetection = useCollisionDetection(overlay);
-        const closestIndex = collisionDetection.closestElement(Object.values(containers.value).map(dz => dz.el));
-        const closestContainer = closestIndex !== null ? containers.value[closestIndex] : null;
+        const containerArr = Object.values(containers.value);
+        const closestIndex = collisionDetection.closestElement(containerArr.map((dz) => dz.el));
+        const closestContainer = closestIndex !== null ? containerArr[closestIndex] : null;
 
         if (!closestContainer || !collisionDetection.collidesWith(closestContainer.el)) {
             return;
@@ -60,14 +55,25 @@ export const useDndContext = defineStore('dndContext', () => {
 
     function getDraggableOver(overlay: DeepReadonly<Ref<DOMElement>>) : string | undefined {
         const collisionDetection = useCollisionDetection(overlay);
-        const closestIndex = collisionDetection.closestElement(Object.values(draggables.value).map(db => db.el));
-        const closestDraggable = closestIndex !== null ? draggables.value[closestIndex] : null;
+        const draggableArr = Object.values(draggables.value);
+        const closestIndex = collisionDetection.closestElement(draggableArr.map((db) => db.el));
+        const closestDraggable = closestIndex !== null ? draggableArr[closestIndex] : null;
 
         if (!closestDraggable || !collisionDetection.collidesWith(closestDraggable.el)) {
             return;
         }
 
         return closestDraggable.id;
+    }
+
+    function getItemEls(items: Ref<DraggableItem[]>) {
+        const itemEls: Record<string, DOMElement> = {};
+
+        items.value.forEach(item => {
+            itemEls[item.id] = draggables.value[item.id]?.el;
+        });
+
+        return itemEls;
     }
 
     function SwapContainer(event: DndDragEvent) {
@@ -105,11 +111,13 @@ export const useDndContext = defineStore('dndContext', () => {
     });
 
     return {
+        isDragging: computed(() => active.value),
         registerContainer,
         registerDraggable,
         unregisterContainer,
         unregisterDraggable,
         getContainerOver,
         getDraggableOver,
+        getItemEls,
     };
 });

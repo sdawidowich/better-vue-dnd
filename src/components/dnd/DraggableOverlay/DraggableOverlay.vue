@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { type DOMElement, type DOMElementBounds } from '@/types/types';
-    import { computed, ref, type Ref, type StyleValue } from 'vue';
+    import { computed, useTemplateRef, type Ref, type StyleValue } from 'vue';
 
     const props = defineProps<{
         visible: boolean;
@@ -16,18 +16,18 @@
         '--drag-transform': props.transform,
     }));
 
-    const el = ref<DOMElement>(null);
+    const overlayEl = useTemplateRef<DOMElement>("overlayEl");
 
     defineExpose<{
         el: Ref<DOMElement>
     }>({ 
-        el
+        el: overlayEl
     });
 </script>
 
 <template>
     <Transition name="drag">
-        <div v-if="visible" ref="el" class="touch-none fixed select-none cursor-pointer z-[1000] drag-overlay" :style="style">
+        <div v-if="visible" ref="overlayEl" class="touch-none fixed select-none cursor-pointer z-[1000] drag-overlay" :style="style">
             <slot />
         </div>
     </Transition>

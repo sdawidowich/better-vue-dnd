@@ -12,11 +12,13 @@ export function useCollisionDetection(refEl: DeepReadonly<Ref<DOMElement>>) {
         const refRect = refEl.value.getBoundingClientRect();
         const secondRect = secondEl.getBoundingClientRect();
 
+        const threshhold = 30;
+
         return (
-            secondRect.left < refRect.left + refRect.width &&
-            secondRect.left + secondRect.width > refRect.left &&
-            secondRect.top < refRect.top + refRect.height &&
-            secondRect.top + secondRect.height > refRect.top
+            secondRect.left + threshhold < refRect.left + refRect.width &&
+            secondRect.left + secondRect.width - threshhold > refRect.left &&
+            secondRect.top + threshhold < refRect.top + refRect.height &&
+            secondRect.top + secondRect.height - threshhold > refRect.top
         );
     }
 
@@ -26,6 +28,7 @@ export function useCollisionDetection(refEl: DeepReadonly<Ref<DOMElement>>) {
         }
 
         const rect = el.getBoundingClientRect();
+
         return {
             x: rect.left + rect.width / 2,
             y: rect.top + rect.height / 2
@@ -36,6 +39,7 @@ export function useCollisionDetection(refEl: DeepReadonly<Ref<DOMElement>>) {
         if (!refEl.value || elements.length === 0) {
             return null;
         }
+
 
         let closest: number = 0;
         let closestDistance = Infinity;

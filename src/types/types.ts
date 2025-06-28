@@ -1,5 +1,3 @@
-import type { Ref } from "vue";
-
 // General Types
 export type DOMElement = HTMLElement | SVGElement | null | undefined;
 export type DOMElementBounds = {
@@ -33,12 +31,12 @@ export type DroppableOptions = {
 };
 export type DndContainer = {
     id: string;
-    el: Ref<DOMElement>;
+    el: DOMElement;
     onMove?: (event: DndDragEvent) => boolean;
     onDrop?: (event: DndDragEvent) => boolean;
     onHover?: (event: DndDragEvent) => boolean;
 };
 export type DndDraggable = {
     id: string;
-    el: Ref<DOMElement>;
+    el: DOMElement;
 };
