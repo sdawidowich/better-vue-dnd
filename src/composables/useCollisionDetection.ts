@@ -12,7 +12,7 @@ export function useCollisionDetection(refEl: DeepReadonly<Ref<DOMElement>>) {
         const refRect = refEl.value.getBoundingClientRect();
         const secondRect = secondEl.getBoundingClientRect();
 
-        const threshhold = 30;
+        const threshhold = 10;
 
         return (
             secondRect.left + threshhold < refRect.left + refRect.width &&

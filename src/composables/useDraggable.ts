@@ -1,7 +1,7 @@
-import type { Axis, DOMElement, DOMElementBounds, DraggableItem, PointerType, Position } from '@/types/types'
-import { defaultWindow, isClient, toRefs, useElementBounding, useEventListener } from '@vueuse/core'
+import type { Axis, DndDragEvent, DOMElement, DOMElementBounds, DraggableItem, PointerType, Position } from '@/types/types'
+import { defaultWindow, isClient, toRefs, useElementBounding, useEventListener, useThrottleFn } from '@vueuse/core'
 import { computed, onMounted, onUnmounted, ref, toValue, type DeepReadonly, type MaybeRefOrGetter, type Ref } from 'vue'
-import { useEventBus } from './useEventBus'
+import { useEventBus, type Events } from './useEventBus'
 import { useDndContext } from './useDndContext'
 
 export interface UseDraggableOptions {
@@ -99,6 +99,8 @@ export function useDraggable(
         return true;
     }
 
+    const throttledEmit = useThrottleFn((type: keyof Events, event: DndDragEvent) => eventBus.emit(type, event), 75);
+
     function updatePos(e: PointerEvent) {
         if (!pressedDelta.value) 
             return;
@@ -192,7 +194,7 @@ export function useDraggable(
         onMove?.(position.value, e);
         handleEvent(e);
 
-        eventBus.emit('draggable:move', {
+        throttledEmit('draggable:move', {
             activeId: value.id,
             activeContainerId: containerId?.value,
             containerOver: dndContext.getContainerOver(overlayEl),

@@ -1,18 +1,16 @@
 import type { DndDragEvent, DOMElement, DOMElementBounds, DraggableItem, DroppableOptions } from '@/types/types';
-import { computed, onMounted, onUnmounted, ref, watch, type ModelRef, type Ref, type StyleValue } from 'vue';
+import { computed, onMounted, onUnmounted, ref, type ModelRef, type Ref, type StyleValue } from 'vue';
 import { useDndContext } from './useDndContext';
 import { useEventBus } from './useEventBus';
 import { reorderItems } from '@/utils/utils';
-import { useDebounceFn, useElementBounding } from '@vueuse/core';
+import { useElementBounding } from '@vueuse/core';
 
 export type UseSortableReturn = ReturnType<typeof useSortable>;
 
-export function useSortable(sortableEl: Ref<DOMElement>, items: Ref<DraggableItem[]>, options: DroppableOptions) {
+export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<DraggableItem[]>, options: DroppableOptions) {
     const dndContext = useDndContext();
     const eventBus = useEventBus();
     const containerId = ref<string | undefined>(undefined);
-
-    const debounceReorder = useDebounceFn(reorderItems, 10);
 
     // Temp items
     const tmpItems = ref<DraggableItem[]>([]);
@@ -40,7 +38,7 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: Ref<DraggableIte
         return {};
     });
 
-    function OnDragStart(event: DndDragEvent) {
+    function OnDragStart() {
         tmpItems.value = [ ...items.value ];
 
         const itemEls = dndContext.getItemEls(tmpItems);
@@ -58,7 +56,11 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: Ref<DraggableIte
     }
 
     function OnDragEnd(event: DndDragEvent) {
-        items.value = [...tmpItems.value];
+        if (event.activeContainerId === containerId.value && event.draggableOver && event.activeId !== event.draggableOver) {
+            reorderItems(tmpItems, event.activeId, event.draggableOver);
+        }
+
+        items.value = [ ...tmpItems.value ];
         tmpItems.value = [];
         tmpItemBounds.value = {};
     }
@@ -80,10 +82,6 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: Ref<DraggableIte
             dndContext.unregisterContainer(containerId.value);
         }
     });
-
-    watch(items, () => {
-        console.log(JSON.stringify(items.value))
-    })
 
     return {
         dndContext,

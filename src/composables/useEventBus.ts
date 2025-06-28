@@ -1,7 +1,7 @@
 import mitt from 'mitt'
 import type { DndDragEvent } from '@/types/types'
 
-type Events = {
+export type Events = {
     'draggable:startdrag': DndDragEvent;
     'draggable:move': DndDragEvent;
     'draggable:enddrag': DndDragEvent;
