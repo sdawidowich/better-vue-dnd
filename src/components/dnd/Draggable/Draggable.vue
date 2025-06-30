@@ -24,7 +24,7 @@
     const containerId = inject<Ref<string | undefined> | undefined>('containerId');
     const activeStyles = inject<Ref<Record<string, StyleValue>> | undefined>('activeStyles');
 
-    const { rect, isDragging, transform } = useDraggable(draggableEl, overlayEl, props.value, containerId, props.options);
+    const { rect, isDragging, overlayStyle } = useDraggable(draggableEl, overlayEl, props.value, containerId, props.options);
 </script>
 
 <template>
@@ -37,7 +37,7 @@
         <slot />
     </div>
     <Teleport to="body">
-        <DraggableOverlay ref="overlayComponent" v-bind=$attrs :visible="isDragging" :el-bounds="rect" :transform="transform">
+        <DraggableOverlay ref="overlayComponent" v-bind=$attrs :visible="isDragging" :elBounds="rect" :activeStyle="overlayStyle">
             <slot />
         </DraggableOverlay>
     </Teleport>

@@ -1,20 +1,12 @@
 <script setup lang="ts">
     import { type DOMElement, type DOMElementBounds } from '@/types/types';
-    import { computed, useTemplateRef, type Ref, type StyleValue } from 'vue';
+    import { useTemplateRef, type Ref, type StyleValue } from 'vue';
 
-    const props = defineProps<{
+    defineProps<{
         visible: boolean;
         elBounds: DOMElementBounds;
-        transform: string;
+        activeStyle: StyleValue;
     }>();
-
-    const style = computed<StyleValue>(() => ({
-        top: props.elBounds.top + 'px',
-        left: props.elBounds.left + 'px',
-        width: props.elBounds.width + 'px',
-        height: props.elBounds.height + 'px',
-        '--drag-transform': props.transform,
-    }));
 
     const overlayEl = useTemplateRef<DOMElement>("overlayEl");
 
@@ -27,7 +19,7 @@
 
 <template>
     <Transition name="drag">
-        <div v-if="visible" ref="overlayEl" class="touch-none fixed select-none cursor-pointer z-[1000] drag-overlay" :style="style">
+        <div v-if="visible" ref="overlayEl" class="touch-none fixed select-none cursor-pointer z-[1000] drag-overlay" :style="activeStyle">
             <slot />
         </div>
     </Transition>

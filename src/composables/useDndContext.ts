@@ -1,4 +1,4 @@
-import type { DndDragEvent, DroppableOptions, DndContainer, DndDraggable, DOMElement, DraggableItem } from '@/types/types'
+import type { DndDragEvent, DroppableOptions, DndContainer, DndDraggable, DOMElement, DraggableItem, DOMElementBounds } from '@/types/types'
 import { defineStore } from 'pinia';
 import { computed, onMounted, onUnmounted, ref, useId, type DeepReadonly, type Ref} from 'vue';
 import { useCollisionDetection } from './useCollisionDetection';
@@ -66,6 +66,10 @@ export const useDndContext = defineStore('dndContext', () => {
         return closestDraggable.id;
     }
 
+    function getItemEl(item: Ref<DraggableItem>) {
+        return draggables.value[item.value.id]?.el;
+    }
+
     function getItemEls(items: Ref<DraggableItem[]>) {
         const itemEls: Record<string, DOMElement> = {};
 
@@ -74,6 +78,39 @@ export const useDndContext = defineStore('dndContext', () => {
         });
 
         return itemEls;
+    }
+
+    function getBoundingRect(item: Ref<DraggableItem>) {
+        const itemEl = getItemEl(item);
+        const boundingRect = itemEl?.getBoundingClientRect();
+
+        return {
+            x: boundingRect?.x ?? 0,
+            y: boundingRect?.y ?? 0,
+            width: boundingRect?.width ?? 0,
+            height: boundingRect?.height ?? 0,
+            top: boundingRect?.top ?? 0,
+            left: boundingRect?.left ?? 0,
+        };
+    }
+
+    function getBoundingRects(items: Ref<DraggableItem[]>) {
+        const itemEls = getItemEls(items);
+
+        const boundingRects: Record<string, DOMElementBounds> = {};
+        items.value.forEach((item) => {
+            const boundingRect = itemEls[item.id]?.getBoundingClientRect();
+
+            boundingRects[item.id] = {
+                x: boundingRect?.x ?? 0,
+                y: boundingRect?.y ?? 0,
+                width: boundingRect?.width ?? 0,
+                height: boundingRect?.height ?? 0,
+                top: boundingRect?.top ?? 0,
+                left: boundingRect?.left ?? 0,
+            };
+        });
+        return boundingRects;
     }
 
     function SwapContainer(event: DndDragEvent) {
@@ -118,6 +155,9 @@ export const useDndContext = defineStore('dndContext', () => {
         unregisterDraggable,
         getContainerOver,
         getDraggableOver,
+        getItemEl,
         getItemEls,
+        getBoundingRect,
+        getBoundingRects
     };
 });

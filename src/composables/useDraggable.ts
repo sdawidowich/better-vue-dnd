@@ -1,6 +1,6 @@
 import type { Axis, DndDragEvent, DOMElement, DOMElementBounds, DraggableItem, PointerType, Position } from '@/types/types'
 import { defaultWindow, isClient, toRefs, useElementBounding, useEventListener, useThrottleFn } from '@vueuse/core'
-import { computed, onMounted, onUnmounted, ref, toValue, type DeepReadonly, type MaybeRefOrGetter, type Ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, toValue, type DeepReadonly, type MaybeRefOrGetter, type Ref, type StyleValue } from 'vue'
 import { useEventBus, type Events } from './useEventBus'
 import { useDndContext } from './useDndContext'
 
@@ -87,11 +87,17 @@ export function useDraggable(
 
     const eventBus = useEventBus();
     const dndContext = useDndContext();
-    const { x: targetX, y: targetY, top: targetTop, left: targetLeft, width: targetWidth, height: targetHeight, update: updateTargetBounding } = useElementBounding(draggableEl);
-    const targetRect = computed<DOMElementBounds>(() => ({ x: targetX.value, y: targetY.value, width: targetWidth.value, height: targetHeight.value, top: targetTop.value, left: targetLeft.value }));
-    const transform = computed<string>(() => `translate(${position.value.x - targetX.value}px, ${position.value.y - targetY.value}px)`);
     const position = ref<Position>(toValue(initialValue) ?? { x: 0, y: 0 });
     const pressedDelta = ref<Position>();
+    const { x: targetX, y: targetY, top: targetTop, left: targetLeft, width: targetWidth, height: targetHeight, update: updateTargetBounding } = useElementBounding(draggableEl);
+    const targetRect = computed<DOMElementBounds>(() => ({ x: targetX.value, y: targetY.value, width: targetWidth.value, height: targetHeight.value, top: targetTop.value, left: targetLeft.value }));
+    const overlayStyle = computed<StyleValue>(() => ({
+        top: targetTop.value + 'px',
+        left: targetLeft.value + 'px',
+        width: targetWidth.value + 'px',
+        height: targetHeight.value + 'px',
+        '--drag-transform': `translate(${position.value.x - targetX.value}px, ${position.value.y - targetY.value}px)`,
+    }));
 
     const filterEvent = (e: PointerEvent) => {
         if (pointerTypes) 
@@ -249,6 +255,6 @@ export function useDraggable(
         position,
         isDragging: computed(() => !!pressedDelta.value),
         rect: targetRect,
-        transform: transform,
-    }
+        overlayStyle: overlayStyle,
+    };
 }

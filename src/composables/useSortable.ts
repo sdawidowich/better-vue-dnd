@@ -3,7 +3,6 @@ import { computed, onMounted, onUnmounted, ref, type ModelRef, type Ref, type St
 import { useDndContext } from './useDndContext';
 import { useEventBus } from './useEventBus';
 import { reorderItems } from '@/utils/utils';
-import { useElementBounding } from '@vueuse/core';
 
 export type UseSortableReturn = ReturnType<typeof useSortable>;
 
@@ -11,10 +10,10 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
     const dndContext = useDndContext();
     const eventBus = useEventBus();
     const containerId = ref<string | undefined>(undefined);
+    const itemBounds = computed<Record<string, DOMElementBounds>>(() => dndContext.getBoundingRects(items));
 
     // Temp items
     const tmpItems = ref<DraggableItem[]>([]);
-    const tmpItemBounds = ref<Record<string, DOMElementBounds>>({});
 
     const activeStyles = computed<Record<string, StyleValue>>(() => {
         if (dndContext.isDragging) {
@@ -22,9 +21,9 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
 
             for (let i = 0; i < tmpItems.value.length; i++) {
                 const originalItem = items.value[i];
-                const originalItemRect = tmpItemBounds.value[originalItem.id];
+                const originalItemRect = itemBounds.value[originalItem.id];
                 const newItem = tmpItems.value[i];
-                const newItemRect = tmpItemBounds.value[newItem.id];
+                const newItemRect = itemBounds.value[newItem.id];
 
                 styles[newItem.id] = {
                     transform: `translate(${(originalItemRect?.left ?? 0) - (newItemRect?.left ?? 0)}px, ${(originalItemRect?.top ?? 0) - (newItemRect?.top ?? 0)}px)`,
@@ -40,13 +39,6 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
 
     function OnDragStart() {
         tmpItems.value = [ ...items.value ];
-
-        const itemEls = dndContext.getItemEls(tmpItems);
-        tmpItemBounds.value = {};
-        Object.entries(itemEls).forEach(([key, value]) => {
-            const { x: targetX, y: targetY, top: targetTop, left: targetLeft, width: targetWidth, height: targetHeight } = useElementBounding(value);
-            tmpItemBounds.value[key] = { x: targetX.value, y: targetY.value, width: targetWidth.value, height: targetHeight.value, top: targetTop.value, left: targetLeft.value };
-        });
     }
 
     function OnMove(event: DndDragEvent) {
@@ -62,7 +54,6 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
 
         items.value = [ ...tmpItems.value ];
         tmpItems.value = [];
-        tmpItemBounds.value = {};
     }
 
     onMounted(() => {
@@ -86,6 +77,7 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
     return {
         dndContext,
         containerId,
-        activeStyles
+        activeStyles,
+        itemBounds
     };
 }
