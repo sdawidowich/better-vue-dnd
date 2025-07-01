@@ -49,7 +49,7 @@
         <h2>Horizontal Axis Sorting</h2>
         <SortableContainer v-model:items="itemsList[2]" class="flex p-4 bg-neutral-800 border-2 border-neutral-600">
             <template #item="slotProps">
-                <Draggable :key="slotProps.item?.text" :value="slotProps.item" class="p-2 bg-neutral-800 border border-neutral-600" :options="{ axis: 'x' }">
+                <Draggable :key="slotProps.item?.text" :value="slotProps.item" class="flex-1 p-2 bg-neutral-800 border border-neutral-600" :options="{ axis: 'x' }">
                     {{ slotProps.item?.text }}
                 </Draggable>
             </template>

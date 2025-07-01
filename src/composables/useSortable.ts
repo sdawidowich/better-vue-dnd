@@ -1,4 +1,4 @@
-import type { DndDragEvent, DOMElement, DOMElementBounds, DraggableItem, DroppableOptions } from '@/types/types';
+import type { DOMElementBounds, DndDragEvent, DOMElement, DraggableItem, DroppableOptions } from '@/types/types';
 import { computed, onMounted, onUnmounted, ref, type ModelRef, type Ref, type StyleValue } from 'vue';
 import { useDndContext } from './useDndContext';
 import { useEventBus } from './useEventBus';
@@ -10,7 +10,6 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
     const dndContext = useDndContext();
     const eventBus = useEventBus();
     const containerId = ref<string | undefined>(undefined);
-    const itemBounds = computed<Record<string, DOMElementBounds>>(() => dndContext.getBoundingRects(items));
 
     // Temp items
     const tmpItems = ref<DraggableItem[]>([]);
@@ -21,9 +20,9 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
 
             for (let i = 0; i < tmpItems.value.length; i++) {
                 const originalItem = items.value[i];
-                const originalItemRect = itemBounds.value[originalItem.id];
+                const originalItemRect = dndContext.draggableBoundingRects[originalItem.id];
                 const newItem = tmpItems.value[i];
-                const newItemRect = itemBounds.value[newItem.id];
+                const newItemRect = dndContext.draggableBoundingRects[newItem.id];
 
                 styles[newItem.id] = {
                     transform: `translate(${(originalItemRect?.left ?? 0) - (newItemRect?.left ?? 0)}px, ${(originalItemRect?.top ?? 0) - (newItemRect?.top ?? 0)}px)`,
@@ -37,20 +36,32 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
         return {};
     });
 
+    function HandleDragEvent(event: DndDragEvent) {
+        if (event.activeContainerId === containerId.value && event.draggableOver && event.activeId !== event.draggableOver) {
+            reorderItems(tmpItems, event.activeId, event.draggableOver);
+
+            const newBoundingRects: Record<string, DOMElementBounds> = {};
+            for (let i = 0; i < tmpItems.value.length; i++) {
+                const originalItem = items.value[i];
+                const newItem = tmpItems.value[i];
+
+                newBoundingRects[newItem.id] = dndContext.draggableBoundingRects[originalItem.id];
+            }
+
+            dndContext.updateOverlayBoundingRects(newBoundingRects);
+        }
+    }
+
     function OnDragStart() {
         tmpItems.value = [ ...items.value ];
     }
 
     function OnMove(event: DndDragEvent) {
-        if (event.activeContainerId === containerId.value && event.draggableOver && event.activeId !== event.draggableOver) {
-            reorderItems(tmpItems, event.activeId, event.draggableOver);
-        }
+        HandleDragEvent(event);
     }
 
     function OnDragEnd(event: DndDragEvent) {
-        if (event.activeContainerId === containerId.value && event.draggableOver && event.activeId !== event.draggableOver) {
-            reorderItems(tmpItems, event.activeId, event.draggableOver);
-        }
+        HandleDragEvent(event);
 
         items.value = [ ...tmpItems.value ];
         tmpItems.value = [];
@@ -77,7 +88,6 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
     return {
         dndContext,
         containerId,
-        activeStyles,
-        itemBounds
+        activeStyles
     };
 }

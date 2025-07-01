@@ -1,4 +1,4 @@
-import type { DndDragEvent, DroppableOptions, DndContainer, DndDraggable, DOMElement, DraggableItem, DOMElementBounds } from '@/types/types'
+import type { DndDragEvent, DroppableOptions, DndContainer, DndDraggable, DOMElement, DOMElementBounds } from '@/types/types'
 import { defineStore } from 'pinia';
 import { computed, onMounted, onUnmounted, ref, useId, type DeepReadonly, type Ref} from 'vue';
 import { useCollisionDetection } from './useCollisionDetection';
@@ -11,6 +11,8 @@ export const useDndContext = defineStore('dndContext', () => {
     const containers = ref<Record<string, DndContainer>>({});
     const draggables = ref<Record<string, DndDraggable>>({});
     const active = ref<string | undefined>();
+    const draggableBoundingRects = ref<Record<string, DOMElementBounds>>({});
+    const overylayBoundingRects = ref<Record<string, DOMElementBounds>>({});
 
     function registerContainer(el: Ref<DOMElement>, options: DroppableOptions) {
         const id = useId();
@@ -66,42 +68,14 @@ export const useDndContext = defineStore('dndContext', () => {
         return closestDraggable.id;
     }
 
-    function getItemEl(item: Ref<DraggableItem>) {
-        return draggables.value[item.value.id]?.el;
-    }
-
-    function getItemEls(items: Ref<DraggableItem[]>) {
-        const itemEls: Record<string, DOMElement> = {};
-
-        items.value.forEach(item => {
-            itemEls[item.id] = draggables.value[item.id]?.el;
-        });
-
-        return itemEls;
-    }
-
-    function getBoundingRect(item: Ref<DraggableItem>) {
-        const itemEl = getItemEl(item);
-        const boundingRect = itemEl?.getBoundingClientRect();
-
-        return {
-            x: boundingRect?.x ?? 0,
-            y: boundingRect?.y ?? 0,
-            width: boundingRect?.width ?? 0,
-            height: boundingRect?.height ?? 0,
-            top: boundingRect?.top ?? 0,
-            left: boundingRect?.left ?? 0,
-        };
-    }
-
-    function getBoundingRects(items: Ref<DraggableItem[]>) {
-        const itemEls = getItemEls(items);
+    function calculateBoundingRects(itemIds: string[]) {
+        const itemEls = getItemEls(itemIds);
 
         const boundingRects: Record<string, DOMElementBounds> = {};
-        items.value.forEach((item) => {
-            const boundingRect = itemEls[item.id]?.getBoundingClientRect();
+        itemIds.forEach((id) => {
+            const boundingRect = itemEls[id]?.getBoundingClientRect();
 
-            boundingRects[item.id] = {
+            boundingRects[id] = {
                 x: boundingRect?.x ?? 0,
                 y: boundingRect?.y ?? 0,
                 width: boundingRect?.width ?? 0,
@@ -113,12 +87,40 @@ export const useDndContext = defineStore('dndContext', () => {
         return boundingRects;
     }
 
+    function updateOverlayBoundingRects(newRects: Record<string, DOMElementBounds>) {
+        overylayBoundingRects.value = { ...overylayBoundingRects.value, ...newRects };
+    }
+
+    function getItemEl(itemId: string) {
+        return draggables.value[itemId]?.el;
+    }
+
+    function getItemEls(itemIds: string[]) {
+        const itemEls: Record<string, DOMElement> = {};
+
+        itemIds.forEach(id => {
+            itemEls[id] = draggables.value[id]?.el;
+        });
+
+        return itemEls;
+    }
+
+    function getBoundingRects(itemIds: string[]) {
+        const boundingRects: Record<string, DOMElementBounds> = {};
+        itemIds.forEach((id) => {
+            boundingRects[id] = draggableBoundingRects.value[id];
+        });
+        return boundingRects;
+    }
+
     function SwapContainer(event: DndDragEvent) {
         console.log(event);
     }
 
     function OnDragStart(event: DndDragEvent) {
         active.value = event.activeId;
+        draggableBoundingRects.value = calculateBoundingRects(Object.keys(draggables.value));
+        overylayBoundingRects.value = { ...draggableBoundingRects.value};
     }
 
     function OnMove(event: DndDragEvent) {
@@ -132,7 +134,7 @@ export const useDndContext = defineStore('dndContext', () => {
             SwapContainer(event);
         }
 
-        console.log(event);
+        overylayBoundingRects.value = {};
     }
 
     onMounted(() => {
@@ -148,16 +150,18 @@ export const useDndContext = defineStore('dndContext', () => {
     });
 
     return {
-        isDragging: computed(() => active.value),
+        isDragging: computed(() => !!active.value),
+        draggableBoundingRects,
+        overylayBoundingRects,
         registerContainer,
         registerDraggable,
         unregisterContainer,
         unregisterDraggable,
+        updateOverlayBoundingRects,
         getContainerOver,
         getDraggableOver,
         getItemEl,
         getItemEls,
-        getBoundingRect,
-        getBoundingRects
+        getBoundingRects,
     };
 });

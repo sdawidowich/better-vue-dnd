@@ -63,7 +63,7 @@ export interface UseDraggableOptions {
 export type UseDraggableReturn = ReturnType<typeof useDraggable>
 
 export function useDraggable(
-    draggableEl: Ref<DOMElement>, 
+    draggableEl: Ref<DOMElement>,
     overlayEl: DeepReadonly<Ref<DOMElement>>, 
     value: DraggableItem, 
     containerId: Ref<string | undefined> | undefined, 
@@ -91,13 +91,17 @@ export function useDraggable(
     const pressedDelta = ref<Position>();
     const { x: targetX, y: targetY, top: targetTop, left: targetLeft, width: targetWidth, height: targetHeight, update: updateTargetBounding } = useElementBounding(draggableEl);
     const targetRect = computed<DOMElementBounds>(() => ({ x: targetX.value, y: targetY.value, width: targetWidth.value, height: targetHeight.value, top: targetTop.value, left: targetLeft.value }));
-    const overlayStyle = computed<StyleValue>(() => ({
-        top: targetTop.value + 'px',
-        left: targetLeft.value + 'px',
-        width: targetWidth.value + 'px',
-        height: targetHeight.value + 'px',
-        '--drag-transform': `translate(${position.value.x - targetX.value}px, ${position.value.y - targetY.value}px)`,
-    }));
+    const overlayStyle = computed<StyleValue>(() => {
+        const boundingRect = dndContext.overylayBoundingRects[value.id];
+        
+        return {
+            top: (boundingRect?.top ?? 0) + 'px',
+            left: (boundingRect?.left ?? 0) + 'px',
+            width: (boundingRect?.width ?? 0) + 'px',
+            height: (boundingRect?.height ?? 0) + 'px',
+            '--drag-transform': `translate(${position.value.x - (boundingRect?.left ?? 0)}px, ${position.value.y - (boundingRect?.top ?? 0)}px)`,
+        };
+    });
 
     const filterEvent = (e: PointerEvent) => {
         if (pointerTypes) 
