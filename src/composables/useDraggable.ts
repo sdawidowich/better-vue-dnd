@@ -81,16 +81,17 @@ export function useDraggable(
         snapToCursor,
         draggingElement = defaultWindow,
         containerElement,
-        handle: draggingHandle = draggableEl,
         buttons = [0],
     } = options;
 
     const eventBus = useEventBus();
     const dndContext = useDndContext();
     const position = ref<Position>(toValue(initialValue) ?? { x: 0, y: 0 });
+    const draggingHandle = ref<Ref<DOMElement>>();
     const pressedDelta = ref<Position>();
     const { x: targetX, y: targetY, top: targetTop, left: targetLeft, width: targetWidth, height: targetHeight, update: updateTargetBounding } = useElementBounding(draggableEl);
     const targetRect = computed<DOMElementBounds>(() => ({ x: targetX.value, y: targetY.value, width: targetWidth.value, height: targetHeight.value, top: targetTop.value, left: targetLeft.value }));
+    const cleanupListeners = ref<() => void>();
     const overlayStyle = computed<StyleValue>(() => {
         const boundingRect = dndContext.overylayBoundingRects[value.id];
         
@@ -110,6 +111,31 @@ export function useDraggable(
     }
 
     const throttledEmit = useThrottleFn((type: keyof Events, event: DndDragEvent) => eventBus.emit(type, event), 75);
+
+    function AddEventListeners() {
+        if (isClient) {
+            const config = () => ({
+                capture: options.capture ?? true,
+                passive: !toValue(preventDefault),
+            });
+
+            const cleanupPointerDown = useEventListener(draggingHandle.value, 'pointerdown', start, config);
+            const cleanupPointerMove = useEventListener(draggingElement, 'pointermove', move, config);
+            const cleanupPointerUp = useEventListener(draggingElement, 'pointerup', end, config);
+
+            cleanupListeners.value = () => {
+                cleanupPointerDown();
+                cleanupPointerMove();
+                cleanupPointerUp();
+            }
+        }
+    }
+
+    function registerHandle(handleEl: Ref<DOMElement>) {
+        draggingHandle.value = handleEl;
+        cleanupListeners.value?.();
+        AddEventListeners();
+    }
 
     function updatePos(e: PointerEvent) {
         if (!pressedDelta.value) 
@@ -233,25 +259,19 @@ export function useDraggable(
         });
     }
 
-    if (isClient) {
-        const config = () => ({
-            capture: options.capture ?? true,
-            passive: !toValue(preventDefault),
-        });
-
-        useEventListener(draggingHandle, 'pointerdown', start, config);
-        useEventListener(draggingElement, 'pointermove', move, config);
-        useEventListener(draggingElement, 'pointerup', end, config);
-    }
     
     onMounted(() => {
         if (draggableEl.value) {
             dndContext.registerDraggable(draggableEl, value.id);
+            draggingHandle.value = draggableEl;
         }
+        
+        AddEventListeners();
     });
 
     onUnmounted(() => {
         dndContext.unregisterDraggable(value.id);
+        cleanupListeners.value?.();
     });
 
     return {
@@ -260,5 +280,6 @@ export function useDraggable(
         isDragging: computed(() => !!pressedDelta.value),
         rect: targetRect,
         overlayStyle: overlayStyle,
+        registerHandle
     };
 }

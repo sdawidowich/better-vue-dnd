@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import type { DOMElement, DraggableItem } from '@/types/types'
-    import { computed, inject, useTemplateRef, type Ref, type StyleValue } from 'vue'
+    import { computed, inject, provide, useTemplateRef, type Ref, type StyleValue } from 'vue'
     import DraggableOverlay from '../DraggableOverlay/DraggableOverlay.vue';
     import { useDraggable, type UseDraggableOptions } from '@/composables/useDraggable';
 
@@ -24,7 +24,9 @@
     const containerId = inject<Ref<string | undefined> | undefined>('containerId');
     const activeStyles = inject<Ref<Record<string, StyleValue>> | undefined>('activeStyles');
 
-    const { rect, isDragging, overlayStyle } = useDraggable(draggableEl, overlayEl, props.value, containerId, props.options);
+    const { rect, isDragging, overlayStyle, registerHandle } = useDraggable(draggableEl, overlayEl, props.value, containerId, props.options);
+    
+    provide('registerHandle', registerHandle);
 </script>
 
 <template>
