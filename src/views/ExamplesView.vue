@@ -4,7 +4,7 @@ import DraggableHandle from '@/components/dnd/DraggableHandle/DraggableHandle.vu
     import SortableContainer from '@/components/dnd/SortableContainer/SortableContainer.vue';
     import { ref, useId } from 'vue';
 
-    const itemsList = ref([CreateItems(), CreateItems(), CreateItems(), CreateItems(), CreateItems()]);
+    const itemsList = ref([CreateItems(), CreateItems(), CreateItems(), CreateItems(), CreateItems(), CreateItems()]);
 
     function CreateItems() {
         return [
@@ -71,6 +71,20 @@ import DraggableHandle from '@/components/dnd/DraggableHandle/DraggableHandle.vu
                 <Draggable :key="slotProps.item?.text" :value="slotProps.item" class="flex gap-2 p-2 bg-neutral-800 border border-neutral-600" :options="{ axis: 'y' }">
                     <DraggableHandle />
                     {{ slotProps.item?.text }}
+                </Draggable>
+            </template>
+        </SortableContainer>
+        
+        <h2>Custom overlay</h2>
+        <SortableContainer v-model:items="itemsList[5]" class="p-4 bg-neutral-800 border-2 border-neutral-600">
+            <template #item="slotProps">
+                <Draggable :key="slotProps.item?.text" :value="slotProps.item" class="flex gap-2 p-2 bg-neutral-800 border border-neutral-600" :options="{ axis: 'y' }">
+                    {{ slotProps.item?.text }}
+                    <template #overlay>
+                        <div class="p-2 bg-neutral-800 opacity-50">
+                            {{ slotProps.item?.text }}
+                        </div>
+                    </template>
                 </Draggable>
             </template>
         </SortableContainer>

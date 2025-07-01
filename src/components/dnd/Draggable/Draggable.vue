@@ -39,8 +39,12 @@
         <slot />
     </div>
     <Teleport to="body">
-        <DraggableOverlay ref="overlayComponent" v-bind=$attrs :visible="isDragging" :elBounds="rect" :activeStyle="overlayStyle">
-            <slot />
+        <DraggableOverlay ref="overlayComponent" :visible="isDragging" :elBounds="rect" :activeStyle="overlayStyle">
+            <slot name="overlay">
+                <div v-bind=$attrs>
+                    <slot />
+                </div>
+            </slot>
         </DraggableOverlay>
     </Teleport>
 </template>
