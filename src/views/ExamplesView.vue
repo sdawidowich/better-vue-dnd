@@ -4,7 +4,7 @@ import DraggableHandle from '@/components/dnd/DraggableHandle/DraggableHandle.vu
     import SortableContainer from '@/components/dnd/SortableContainer/SortableContainer.vue';
     import { ref, useId } from 'vue';
 
-    const itemsList = ref([CreateItems(), CreateItems(), CreateItems(), CreateItems(), CreateItems(), CreateItems()]);
+    const itemsList = ref([CreateItems(), CreateItems(), CreateItems(), CreateItems(), CreateItems(), CreateItems(), GridItems()]);
 
     function CreateItems() {
         return [
@@ -19,6 +19,47 @@ import DraggableHandle from '@/components/dnd/DraggableHandle/DraggableHandle.vu
             {
                 id: useId(),
                 text: 'Yeah dog we got water, yeah dog we got flow',
+            }
+        ];
+    }
+
+    function GridItems() {
+        return [
+            {
+                id: useId(),
+                text: '1',
+            },
+            {
+                id: useId(),
+                text: '2',
+            },
+            {
+                id: useId(),
+                text: '3',
+            },
+            {
+                id: useId(),
+                text: '4',
+            },
+            {
+                id: useId(),
+                text: '5',
+            },
+            {
+                id: useId(),
+                text: '6',
+            },
+            {
+                id: useId(),
+                text: '7',
+            },
+            {
+                id: useId(),
+                text: '8',
+            },
+            {
+                id: useId(),
+                text: '9',
             }
         ];
     }
@@ -79,6 +120,20 @@ import DraggableHandle from '@/components/dnd/DraggableHandle/DraggableHandle.vu
         <SortableContainer v-model:items="itemsList[5]" class="flex flex-col gap-2 p-4 bg-neutral-800 border-2 border-neutral-600">
             <template #item="slotProps">
                 <Draggable :key="slotProps.item?.text" :value="slotProps.item" class="flex gap-2 p-2 bg-neutral-800 border border-neutral-600" :options="{ axis: 'y' }">
+                    {{ slotProps.item?.text }}
+                    <template #overlay>
+                        <div class="p-2 bg-neutral-400 border-neutral-400 opacity-30 h-full">
+                            
+                        </div>
+                    </template>
+                </Draggable>
+            </template>
+        </SortableContainer>
+        
+        <h2>Custom overlay</h2>
+        <SortableContainer v-model:items="itemsList[6]" class="grid grid-cols-3 gap-2 p-4 bg-neutral-800 border-2 border-neutral-600">
+            <template #item="slotProps">
+                <Draggable :key="slotProps.item?.text" :value="slotProps.item" class="flex gap-2 p-2 bg-neutral-800 border border-neutral-600">
                     {{ slotProps.item?.text }}
                     <template #overlay>
                         <div class="p-2 bg-neutral-400 border-neutral-400 opacity-30 h-full">
