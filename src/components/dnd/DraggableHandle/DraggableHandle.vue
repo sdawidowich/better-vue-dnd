@@ -1,18 +1,19 @@
 <script setup lang="ts">
     import type { DOMElement } from '@/types/types';
     import { GripVertical } from 'lucide-vue-next';
-    import { inject, onMounted, useTemplateRef, type Ref } from 'vue';
+    import { inject, onMounted, useTemplateRef } from 'vue';
 
     defineProps<{
         icon?: string;
     }>();
 
     const handleEl = useTemplateRef<DOMElement>("handleEl");
-    const registerHandle = inject<(handleEl: Ref<DOMElement>) => void | undefined>('registerHandle');
+    const registerHandle = inject<(handleEl: DOMElement) => void | undefined>('registerHandle');
+    const inOverlay = inject<boolean>('inOverlay', false);
 
     onMounted(() => {
-        if (handleEl.value && registerHandle) {
-            registerHandle(handleEl);
+        if (handleEl.value && registerHandle && !inOverlay) {
+            registerHandle(handleEl.value);
         }
     });
 </script>

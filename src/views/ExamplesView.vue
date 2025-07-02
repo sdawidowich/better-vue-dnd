@@ -30,7 +30,7 @@ import DraggableHandle from '@/components/dnd/DraggableHandle/DraggableHandle.vu
         <h1>Examples</h1>
 
         <h2>Sortable Container</h2>
-        <SortableContainer v-model:items="itemsList[0]" class="p-4 bg-neutral-800 border-2 border-neutral-600">
+        <SortableContainer v-model:items="itemsList[0]" class="flex flex-col gap-2 p-4 bg-neutral-800 border-2 border-neutral-600">
             <template #item="slotProps">
                 <Draggable :key="slotProps.item?.text" :value="slotProps.item" class="p-2 bg-neutral-800 border border-neutral-600">
                     {{ slotProps.item?.text }}
@@ -39,7 +39,7 @@ import DraggableHandle from '@/components/dnd/DraggableHandle/DraggableHandle.vu
         </SortableContainer>
         
         <h2>Snap to Cursor</h2>
-        <SortableContainer v-model:items="itemsList[1]" class="p-4 bg-neutral-800 border-2 border-neutral-600">
+        <SortableContainer v-model:items="itemsList[1]" class="flex flex-col gap-2 p-4 bg-neutral-800 border-2 border-neutral-600">
             <template #item="slotProps">
                 <Draggable :key="slotProps.item?.text" :value="slotProps.item" class="p-2 bg-neutral-800 border border-neutral-600" :options="{ snapToCursor: true }">
                     {{ slotProps.item?.text }}
@@ -48,7 +48,7 @@ import DraggableHandle from '@/components/dnd/DraggableHandle/DraggableHandle.vu
         </SortableContainer>
         
         <h2>Horizontal Axis Sorting</h2>
-        <SortableContainer v-model:items="itemsList[2]" class="flex p-4 bg-neutral-800 border-2 border-neutral-600">
+        <SortableContainer v-model:items="itemsList[2]" class="flex gap-2 p-4 bg-neutral-800 border-2 border-neutral-600">
             <template #item="slotProps">
                 <Draggable :key="slotProps.item?.text" :value="slotProps.item" class="flex-1 p-2 bg-neutral-800 border border-neutral-600" :options="{ axis: 'x' }">
                     {{ slotProps.item?.text }}
@@ -57,7 +57,7 @@ import DraggableHandle from '@/components/dnd/DraggableHandle/DraggableHandle.vu
         </SortableContainer>
         
         <h2>Vertical Axis Sorting</h2>
-        <SortableContainer v-model:items="itemsList[3]" class="p-4 bg-neutral-800 border-2 border-neutral-600">
+        <SortableContainer v-model:items="itemsList[3]" class="flex flex-col gap-2 p-4 bg-neutral-800 border-2 border-neutral-600">
             <template #item="slotProps">
                 <Draggable :key="slotProps.item?.text" :value="slotProps.item" class="p-2 bg-neutral-800 border border-neutral-600" :options="{ axis: 'y' }">
                     {{ slotProps.item?.text }}
@@ -66,7 +66,7 @@ import DraggableHandle from '@/components/dnd/DraggableHandle/DraggableHandle.vu
         </SortableContainer>
         
         <h2>Sorting with a handle</h2>
-        <SortableContainer v-model:items="itemsList[4]" class="p-4 bg-neutral-800 border-2 border-neutral-600">
+        <SortableContainer v-model:items="itemsList[4]" class="flex flex-col gap-2 p-4 bg-neutral-800 border-2 border-neutral-600">
             <template #item="slotProps">
                 <Draggable :key="slotProps.item?.text" :value="slotProps.item" class="flex gap-2 p-2 bg-neutral-800 border border-neutral-600" :options="{ axis: 'y' }">
                     <DraggableHandle />
@@ -76,13 +76,13 @@ import DraggableHandle from '@/components/dnd/DraggableHandle/DraggableHandle.vu
         </SortableContainer>
         
         <h2>Custom overlay</h2>
-        <SortableContainer v-model:items="itemsList[5]" class="p-4 bg-neutral-800 border-2 border-neutral-600">
+        <SortableContainer v-model:items="itemsList[5]" class="flex flex-col gap-2 p-4 bg-neutral-800 border-2 border-neutral-600">
             <template #item="slotProps">
                 <Draggable :key="slotProps.item?.text" :value="slotProps.item" class="flex gap-2 p-2 bg-neutral-800 border border-neutral-600" :options="{ axis: 'y' }">
                     {{ slotProps.item?.text }}
                     <template #overlay>
-                        <div class="p-2 bg-neutral-800 opacity-50">
-                            {{ slotProps.item?.text }}
+                        <div class="p-2 bg-neutral-400 border-neutral-400 opacity-30 h-full">
+                            
                         </div>
                     </template>
                 </Draggable>

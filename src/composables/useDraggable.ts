@@ -87,7 +87,7 @@ export function useDraggable(
     const eventBus = useEventBus();
     const dndContext = useDndContext();
     const position = ref<Position>(toValue(initialValue) ?? { x: 0, y: 0 });
-    const draggingHandle = ref<Ref<DOMElement>>();
+    const draggingHandle = ref<DOMElement>(draggableEl.value);
     const pressedDelta = ref<Position>();
     const { x: targetX, y: targetY, top: targetTop, left: targetLeft, width: targetWidth, height: targetHeight, update: updateTargetBounding } = useElementBounding(draggableEl);
     const targetRect = computed<DOMElementBounds>(() => ({ x: targetX.value, y: targetY.value, width: targetWidth.value, height: targetHeight.value, top: targetTop.value, left: targetLeft.value }));
@@ -114,12 +114,14 @@ export function useDraggable(
 
     function AddEventListeners() {
         if (isClient) {
+            cleanupListeners.value?.();
+
             const config = () => ({
                 capture: options.capture ?? true,
                 passive: !toValue(preventDefault),
             });
 
-            const cleanupPointerDown = useEventListener(draggingHandle.value, 'pointerdown', start, config);
+            const cleanupPointerDown = useEventListener(draggingHandle, 'pointerdown', start, config);
             const cleanupPointerMove = useEventListener(draggingElement, 'pointermove', move, config);
             const cleanupPointerUp = useEventListener(draggingElement, 'pointerup', end, config);
 
@@ -127,14 +129,12 @@ export function useDraggable(
                 cleanupPointerDown();
                 cleanupPointerMove();
                 cleanupPointerUp();
-            }
+            };
         }
     }
 
-    function registerHandle(handleEl: Ref<DOMElement>) {
+    function registerHandle(handleEl: DOMElement) {
         draggingHandle.value = handleEl;
-        cleanupListeners.value?.();
-        AddEventListeners();
     }
 
     function updatePos(e: PointerEvent) {
@@ -263,7 +263,10 @@ export function useDraggable(
     onMounted(() => {
         if (draggableEl.value) {
             dndContext.registerDraggable(draggableEl, value.id);
-            draggingHandle.value = draggableEl;
+        }
+
+        if (draggableEl.value && !draggingHandle.value) {
+            draggingHandle.value = draggableEl.value;
         }
         
         AddEventListeners();
