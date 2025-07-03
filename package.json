@@ -4,7 +4,6 @@
   "author": "https://dawidowich.com",
   "description": "A Vue 3 drag and drop library with a focus on simplicity and performance.",
   "license": "MIT",
-  "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
