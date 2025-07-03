@@ -1,7 +1,7 @@
 <script setup lang="ts">
-    import Draggable from '@/components/dnd/Draggable/Draggable.vue';
-import DraggableHandle from '@/components/dnd/DraggableHandle/DraggableHandle.vue';
-    import SortableContainer from '@/components/dnd/SortableContainer/SortableContainer.vue';
+    import Draggable from '@/package/components/dnd/Draggable/Draggable.vue';
+    import DraggableHandle from '@/package/components/dnd/DraggableHandle/DraggableHandle.vue';
+    import SortableContainer from '@/package/components/dnd/SortableContainer/SortableContainer.vue';
     import { ref, useId } from 'vue';
 
     const itemsList = ref([CreateItems(), CreateItems(), CreateItems(), CreateItems(), CreateItems(), CreateItems(), GridItems()]);

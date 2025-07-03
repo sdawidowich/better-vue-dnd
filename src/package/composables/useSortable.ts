@@ -1,12 +1,30 @@
-import type { DOMElementBounds, DndDragEvent, DOMElement, DraggableItem, DroppableOptions } from '@/types/types';
-import { computed, onMounted, onUnmounted, ref, type ModelRef, type Ref, type StyleValue } from 'vue';
+import type {
+    DOMElementBounds,
+    DndDragEvent,
+    DOMElement,
+    DraggableItem,
+    DroppableOptions,
+} from '@/package/types/types';
+import {
+    computed,
+    onMounted,
+    onUnmounted,
+    ref,
+    type ModelRef,
+    type Ref,
+    type StyleValue,
+} from 'vue';
 import { useDndContext } from './useDndContext';
 import { useEventBus } from './useEventBus';
-import { reorderItems } from '@/utils/utils';
+import { reorderItems } from '@/package/utils/utils';
 
 export type UseSortableReturn = ReturnType<typeof useSortable>;
 
-export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<DraggableItem[]>, options: DroppableOptions) {
+export function useSortable(
+    sortableEl: Ref<DOMElement>,
+    items: ModelRef<DraggableItem[]>,
+    options: DroppableOptions,
+) {
     const dndContext = useDndContext();
     const eventBus = useEventBus();
     const containerId = ref<string | undefined>(undefined);
@@ -26,7 +44,7 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
 
                 styles[newItem.id] = {
                     transform: `translate(${(originalItemRect?.left ?? 0) - (newItemRect?.left ?? 0)}px, ${(originalItemRect?.top ?? 0) - (newItemRect?.top ?? 0)}px)`,
-                    transition: 'transform 0.15s linear'
+                    transition: 'transform 0.15s linear',
                 };
             }
 
@@ -37,7 +55,11 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
     });
 
     function HandleDragEvent(event: DndDragEvent) {
-        if (event.activeContainerId === containerId.value && event.draggableOver && event.activeId !== event.draggableOver) {
+        if (
+            event.activeContainerId === containerId.value &&
+            event.draggableOver &&
+            event.activeId !== event.draggableOver
+        ) {
             reorderItems(tmpItems, event.activeId, event.draggableOver);
 
             const newBoundingRects: Record<string, DOMElementBounds> = {};
@@ -53,7 +75,7 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
     }
 
     function OnDragStart() {
-        tmpItems.value = [ ...items.value ];
+        tmpItems.value = [...items.value];
     }
 
     function OnMove(event: DndDragEvent) {
@@ -63,7 +85,7 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
     function OnDragEnd(event: DndDragEvent) {
         HandleDragEvent(event);
 
-        items.value = [ ...tmpItems.value ];
+        items.value = [...tmpItems.value];
         tmpItems.value = [];
     }
 
@@ -88,6 +110,6 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
     return {
         dndContext,
         containerId,
-        activeStyles
+        activeStyles,
     };
 }

@@ -1,7 +1,7 @@
-import type { DOMElement } from '@/types/types'
-import { type DeepReadonly, type Ref } from 'vue'
+import type { DOMElement } from '@/package/types/types';
+import { type DeepReadonly, type Ref } from 'vue';
 
-export type UseCollisionDetectionReturn = ReturnType<typeof useCollisionDetection>
+export type UseCollisionDetectionReturn = ReturnType<typeof useCollisionDetection>;
 
 export function useCollisionDetection(refEl: DeepReadonly<Ref<DOMElement>>) {
     function collidesWith(secondEl: DOMElement): boolean {
@@ -31,7 +31,7 @@ export function useCollisionDetection(refEl: DeepReadonly<Ref<DOMElement>>) {
 
         return {
             x: rect.left + rect.width / 2,
-            y: rect.top + rect.height / 2
+            y: rect.top + rect.height / 2,
         };
     }
 
@@ -40,13 +40,11 @@ export function useCollisionDetection(refEl: DeepReadonly<Ref<DOMElement>>) {
             return null;
         }
 
-
         let closest: number = 0;
         let closestDistance = Infinity;
 
         elements.forEach((el, index) => {
-            if (!el) 
-                return;
+            if (!el) return;
 
             const refRectCenter = getCenter(refEl.value);
             const rect2Center = getCenter(el);
@@ -56,7 +54,7 @@ export function useCollisionDetection(refEl: DeepReadonly<Ref<DOMElement>>) {
             }
             const distance = Math.sqrt(
                 Math.pow(refRectCenter.x - rect2Center.x, 2) +
-                Math.pow(refRectCenter.y - rect2Center.y, 2)
+                    Math.pow(refRectCenter.y - rect2Center.y, 2),
             );
 
             if (distance < closestDistance) {
@@ -70,6 +68,6 @@ export function useCollisionDetection(refEl: DeepReadonly<Ref<DOMElement>>) {
 
     return {
         collidesWith,
-        closestElement
+        closestElement,
     };
 }

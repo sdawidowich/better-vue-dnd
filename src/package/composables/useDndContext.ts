@@ -1,6 +1,13 @@
-import type { DndDragEvent, DroppableOptions, DndContainer, DndDraggable, DOMElement, DOMElementBounds } from '@/types/types'
+import type {
+    DndDragEvent,
+    DroppableOptions,
+    DndContainer,
+    DndDraggable,
+    DOMElement,
+    DOMElementBounds,
+} from '@/package/types/types';
 import { defineStore } from 'pinia';
-import { computed, onMounted, onUnmounted, ref, useId, type DeepReadonly, type Ref} from 'vue';
+import { computed, onMounted, onUnmounted, ref, useId, type DeepReadonly, type Ref } from 'vue';
 import { useCollisionDetection } from './useCollisionDetection';
 import { useEventBus } from './useEventBus';
 
@@ -26,7 +33,7 @@ export const useDndContext = defineStore('dndContext', () => {
 
         return id;
     }
-    
+
     function registerDraggable(el: Ref<DOMElement>, id: string) {
         draggables.value[id] = {
             id: id,
@@ -42,7 +49,7 @@ export const useDndContext = defineStore('dndContext', () => {
         delete draggables.value[id];
     }
 
-    function getContainerOver(overlay: DeepReadonly<Ref<DOMElement>>) : string | undefined {
+    function getContainerOver(overlay: DeepReadonly<Ref<DOMElement>>): string | undefined {
         const collisionDetection = useCollisionDetection(overlay);
         const containerArr = Object.values(containers.value);
         const closestIndex = collisionDetection.closestElement(containerArr.map((dz) => dz.el));
@@ -55,7 +62,7 @@ export const useDndContext = defineStore('dndContext', () => {
         return closestContainer.id;
     }
 
-    function getDraggableOver(overlay: DeepReadonly<Ref<DOMElement>>) : string | undefined {
+    function getDraggableOver(overlay: DeepReadonly<Ref<DOMElement>>): string | undefined {
         const collisionDetection = useCollisionDetection(overlay);
         const draggableArr = Object.values(draggables.value);
         const closestIndex = collisionDetection.closestElement(draggableArr.map((db) => db.el));
@@ -98,7 +105,7 @@ export const useDndContext = defineStore('dndContext', () => {
     function getItemEls(itemIds: string[]) {
         const itemEls: Record<string, DOMElement> = {};
 
-        itemIds.forEach(id => {
+        itemIds.forEach((id) => {
             itemEls[id] = draggables.value[id]?.el;
         });
 
@@ -120,7 +127,7 @@ export const useDndContext = defineStore('dndContext', () => {
     function OnDragStart(event: DndDragEvent) {
         active.value = event.activeId;
         draggableBoundingRects.value = calculateBoundingRects(Object.keys(draggables.value));
-        overylayBoundingRects.value = { ...draggableBoundingRects.value};
+        overylayBoundingRects.value = { ...draggableBoundingRects.value };
     }
 
     function OnMove(event: DndDragEvent) {
