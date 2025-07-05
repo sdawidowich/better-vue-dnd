@@ -37,7 +37,6 @@
       },
       "./style.css": "./dist/style.css"
     },
-    "directory": "dist",
     "linkDirectory": false,
     "access": "public"
   },
