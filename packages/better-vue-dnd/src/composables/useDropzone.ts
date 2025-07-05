@@ -1,4 +1,4 @@
-import type { DOMElement, DroppableOptions } from '@/package/types/types';
+import type { DOMElement, DroppableOptions } from '../types/types';
 import { onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useDndContext } from './useDndContext';
 

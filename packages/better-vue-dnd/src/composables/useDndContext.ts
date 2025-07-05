@@ -1,11 +1,4 @@
-import type {
-    DndDragEvent,
-    DroppableOptions,
-    DndContainer,
-    DndDraggable,
-    DOMElement,
-    DOMElementBounds,
-} from '@/package/types/types';
+import type { DndDragEvent, DroppableOptions, DndContainer, DndDraggable, DOMElement, DOMElementBounds } from '../types/types';
 import { defineStore } from 'pinia';
 import { computed, onMounted, onUnmounted, ref, useId, type DeepReadonly, type Ref } from 'vue';
 import { useCollisionDetection } from './useCollisionDetection';

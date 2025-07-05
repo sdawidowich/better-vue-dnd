@@ -1,4 +1,4 @@
-import type { DraggableItem } from '@/package/types/types';
+import type { DraggableItem } from '../types/types';
 import type { Ref } from 'vue';
 
 export function reorderItems(items: Ref<DraggableItem[]>, activeId: string, draggableOver: string) {

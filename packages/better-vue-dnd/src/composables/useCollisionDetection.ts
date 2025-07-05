@@ -1,4 +1,4 @@
-import type { DOMElement } from '@/package/types/types';
+import type { DOMElement } from '../types/types';
 import { type DeepReadonly, type Ref } from 'vue';
 
 export type UseCollisionDetectionReturn = ReturnType<typeof useCollisionDetection>;

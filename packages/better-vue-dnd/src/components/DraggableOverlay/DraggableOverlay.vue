@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { type DOMElement, type DOMElementBounds } from '@/package/types/types';
-import { provide, useTemplateRef, type Ref, type StyleValue } from 'vue';
+    import { type DOMElement, type DOMElementBounds } from '../../types/types';
+    import { provide, useTemplateRef, type Ref, type StyleValue } from 'vue';
 
-defineProps<{
-    visible: boolean;
-    elBounds: DOMElementBounds;
-    activeStyle: StyleValue;
-}>();
+    defineProps<{
+        visible: boolean;
+        elBounds: DOMElementBounds;
+        activeStyle: StyleValue;
+    }>();
 
-const overlayEl = useTemplateRef<DOMElement>('overlayEl');
+    const overlayEl = useTemplateRef<DOMElement>('overlayEl');
 
-provide('inOverlay', true);
-defineExpose<{
-    el: Ref<DOMElement>;
-}>({
-    el: overlayEl,
-});
+    provide('inOverlay', true);
+    defineExpose<{
+        el: Ref<DOMElement>;
+    }>({
+        el: overlayEl,
+    });
 </script>
 
 <template>

@@ -1,22 +1,8 @@
-import type {
-    DOMElementBounds,
-    DndDragEvent,
-    DOMElement,
-    DraggableItem,
-    DroppableOptions,
-} from '@/package/types/types';
-import {
-    computed,
-    onMounted,
-    onUnmounted,
-    ref,
-    type ModelRef,
-    type Ref,
-    type StyleValue,
-} from 'vue';
+import type { DOMElementBounds, DndDragEvent, DOMElement, DraggableItem, DroppableOptions } from '../types/types';
+import { computed, onMounted, onUnmounted, ref, type ModelRef, type Ref, type StyleValue } from 'vue';
 import { useDndContext } from './useDndContext';
 import { useEventBus } from './useEventBus';
-import { reorderItems } from '@/package/utils/utils';
+import { reorderItems } from '../utils/utils';
 
 export type UseSortableReturn = ReturnType<typeof useSortable>;
 

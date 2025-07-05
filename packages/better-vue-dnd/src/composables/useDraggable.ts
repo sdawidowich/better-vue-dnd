@@ -1,33 +1,8 @@
-import type {
-    Axis,
-    DndDragEvent,
-    DOMElement,
-    DOMElementBounds,
-    DraggableItem,
-    PointerType,
-    Position,
-} from '@/package/types/types';
-import {
-    defaultWindow,
-    isClient,
-    toRefs,
-    useElementBounding,
-    useEventListener,
-    useThrottleFn,
-} from '@vueuse/core';
-import {
-    computed,
-    onMounted,
-    onUnmounted,
-    ref,
-    toValue,
-    type DeepReadonly,
-    type MaybeRefOrGetter,
-    type Ref,
-    type StyleValue,
-} from 'vue';
+import type { Axis, DndDragEvent, DOMElement, DOMElementBounds, DraggableItem, PointerType, Position, } from '../types/types';
+import { computed, onMounted, onUnmounted, ref, toValue, type DeepReadonly, type MaybeRefOrGetter, type Ref, type StyleValue } from 'vue';
 import { useEventBus, type Events } from './useEventBus';
 import { useDndContext } from './useDndContext';
+import { defaultWindow, isClient, toRefs, useElementBounding, useEventListener, useThrottleFn } from '@vueuse/core';
 
 export interface UseDraggableOptions {
     /* Prevent events defaults */
@@ -114,25 +89,10 @@ export function useDraggable(
     const eventBus = useEventBus();
     const dndContext = useDndContext();
     const position = ref<Position>(toValue(initialValue) ?? { x: 0, y: 0 });
-    const draggingHandle = ref<DOMElement>(draggableEl.value);
+    const draggingHandle = ref<DOMElement>();
     const pressedDelta = ref<Position>();
-    const {
-        x: targetX,
-        y: targetY,
-        top: targetTop,
-        left: targetLeft,
-        width: targetWidth,
-        height: targetHeight,
-        update: updateTargetBounding,
-    } = useElementBounding(draggableEl);
-    const targetRect = computed<DOMElementBounds>(() => ({
-        x: targetX.value,
-        y: targetY.value,
-        width: targetWidth.value,
-        height: targetHeight.value,
-        top: targetTop.value,
-        left: targetLeft.value,
-    }));
+    const { x: targetX, y: targetY, top: targetTop, left: targetLeft, width: targetWidth, height: targetHeight, update: updateTargetBounding } = useElementBounding(draggableEl);
+    const targetRect = computed<DOMElementBounds>(() => ({ x: targetX.value, y: targetY.value, width: targetWidth.value, height: targetHeight.value, top: targetTop.value, left: targetLeft.value }));
     const cleanupListeners = ref<() => void>();
     const overlayStyle = computed<StyleValue>(() => {
         const boundingRect = dndContext.overylayBoundingRects[value.id];
@@ -165,18 +125,8 @@ export function useDraggable(
                 passive: !toValue(preventDefault),
             });
 
-            const cleanupPointerDown = useEventListener(
-                draggingHandle,
-                'pointerdown',
-                start,
-                config,
-            );
-            const cleanupPointerMove = useEventListener(
-                draggingElement,
-                'pointermove',
-                move,
-                config,
-            );
+            const cleanupPointerDown = useEventListener(draggingHandle, 'pointerdown', start, config);
+            const cleanupPointerMove = useEventListener(draggingElement,'pointermove',move,config);
             const cleanupPointerUp = useEventListener(draggingElement, 'pointerup', end, config);
 
             cleanupListeners.value = () => {
