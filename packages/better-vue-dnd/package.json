@@ -1,8 +1,8 @@
 {
   "name": "better-vue-dnd",
-  "version": "0.0.2",
+  "version": "0.0.2-beta.1",
   "author": "https://dawidowich.com",
-  "description": "A Vue 3 drag and drop library with a focus on simplicity and performance.",
+  "description": "A Vue 3 drag and drop library.",
   "license": "MIT",
   "private": false,
   "repository": {

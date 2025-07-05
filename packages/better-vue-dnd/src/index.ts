@@ -9,18 +9,6 @@ import { useDraggable } from "./composables/useDraggable";
 import { useDropzone } from "./composables/useDropzone";
 import { useSortable } from "./composables/useSortable";
 import { useEventBus } from "./composables/useEventBus";
-import type { App } from "vue";
-
-
-export default {
-    install: (app: App) => {
-        app.component("Draggable", Draggable);
-        app.component("DraggableHandle", DraggableHandle);
-        app.component("DraggableOverlay", DraggableOverlay);
-        app.component("Dropzone", Dropzone);
-        app.component("SortableContainer", SortableContainer);
-    }
-}
 
 export {
     Draggable,

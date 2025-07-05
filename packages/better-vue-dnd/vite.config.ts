@@ -11,7 +11,11 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url)),
-        }
+        },
+        dedupe: [
+          'vue',
+          '@vue/runtime-core'
+        ],
     },
     build: {
         lib: {
@@ -20,13 +24,15 @@ export default defineConfig({
             fileName: 'better-vue-dnd',
         },
         rollupOptions: {
-            external: ['vue', 'pinia', '@vueuse/core'],
+            external: ['vue', 'pinia', 'mitt', '@vueuse/core', '@vitejs/plugin-vue'],
             output: {
                 exports: 'named',
                 globals: {
                     vue: 'Vue',
                     pinia: 'Pinia',
+                    mitt: 'Mitt',
                     '@vueuse/core': 'VueUse',
+                    '@vitejs/plugin-vue': 'ViteJs'
                 },
             },
         },

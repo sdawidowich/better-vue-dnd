@@ -67,7 +67,7 @@ export type UseDraggableReturn = ReturnType<typeof useDraggable>;
 export function useDraggable(
     draggableEl: Ref<DOMElement>,
     overlayEl: DeepReadonly<Ref<DOMElement>>,
-    value: DraggableItem,
+    item: DraggableItem,
     containerId: Ref<string | undefined> | undefined,
     options: UseDraggableOptions = {},
 ) {
@@ -95,7 +95,7 @@ export function useDraggable(
     const targetRect = computed<DOMElementBounds>(() => ({ x: targetX.value, y: targetY.value, width: targetWidth.value, height: targetHeight.value, top: targetTop.value, left: targetLeft.value }));
     const cleanupListeners = ref<() => void>();
     const overlayStyle = computed<StyleValue>(() => {
-        const boundingRect = dndContext.overylayBoundingRects[value.id];
+        const boundingRect = dndContext.overylayBoundingRects[item.id];
 
         return {
             top: (boundingRect?.top ?? 0) + 'px',
@@ -212,7 +212,7 @@ export function useDraggable(
         handleEvent(e);
 
         eventBus.emit('draggable:startdrag', {
-            activeId: value.id,
+            activeId: item.id,
             activeContainerId: containerId?.value,
             containerOver: dndContext.getContainerOver(overlayEl),
             draggableOver: dndContext.getDraggableOver(overlayEl),
@@ -229,7 +229,7 @@ export function useDraggable(
         handleEvent(e);
 
         throttledEmit('draggable:move', {
-            activeId: value.id,
+            activeId: item.id,
             activeContainerId: containerId?.value,
             containerOver: dndContext.getContainerOver(overlayEl),
             draggableOver: dndContext.getDraggableOver(overlayEl),
@@ -248,7 +248,7 @@ export function useDraggable(
         handleEvent(e);
 
         eventBus.emit('draggable:enddrag', {
-            activeId: value.id,
+            activeId: item.id,
             activeContainerId: containerId?.value,
             containerOver: dndContext.getContainerOver(overlayEl),
             draggableOver: dndContext.getDraggableOver(overlayEl),
@@ -257,7 +257,7 @@ export function useDraggable(
 
     onMounted(() => {
         if (draggableEl.value) {
-            dndContext.registerDraggable(draggableEl, value.id);
+            dndContext.registerDraggable(draggableEl, item.id);
         }
 
         if (draggableEl.value && !draggingHandle.value) {
@@ -268,7 +268,7 @@ export function useDraggable(
     });
 
     onUnmounted(() => {
-        dndContext.unregisterDraggable(value.id);
+        dndContext.unregisterDraggable(item.id);
         cleanupListeners.value?.();
     });
 
