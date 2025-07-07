@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import type { DOMElement, DraggableItem } from '../../types/types';
-    import { computed, inject, onMounted, provide, useTemplateRef, type Ref, type StyleValue } from 'vue';
+    import { computed, inject, provide, useTemplateRef, type Ref, type StyleValue } from 'vue';
     import DraggableOverlay from '../DraggableOverlay/DraggableOverlay.vue';
     import { useDraggable, type UseDraggableOptions } from '../../composables/useDraggable';
 
@@ -16,17 +16,14 @@
         },
     );
 
-    const draggableEl = useTemplateRef<DOMElement>("draggableEl");
+    const el = useTemplateRef<DOMElement>("draggableEl");
     const overlayComponent = useTemplateRef<InstanceType<typeof DraggableOverlay>>('overlayComponent');
-    const overlayEl = computed<DOMElement>(() => {
-        console.log("Update overlay el", overlayComponent.value);
-        return overlayComponent.value ? overlayComponent.value.el : null
-    });
+    const overlayEl = computed<DOMElement>(() => overlayComponent.value ? overlayComponent.value.el : null);
     const containerId = inject<Ref<string | undefined> | undefined>('containerId');
     const activeStyles = inject<Ref<Record<string, StyleValue>> | undefined>('activeStyles');
 
     const { rect, isDragging, overlayStyle, registerHandle } = useDraggable(
-        draggableEl,
+        el,
         overlayEl,
         props.item,
         containerId,
@@ -34,10 +31,6 @@
     );
 
     provide('registerHandle', registerHandle);
-
-    onMounted(() => {
-        console.log("Mounted draggable")
-    })
 </script>
 
 <template>
@@ -54,7 +47,7 @@
             ref="overlayComponent"
             :visible="isDragging"
             :elBounds="rect"
-            :activeStyle="overlayStyle"
+            :overlayStyle="overlayStyle"
         >
             <slot name="overlay">
                 <div v-bind="$attrs">

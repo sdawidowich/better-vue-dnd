@@ -1,11 +1,12 @@
 <script setup lang="ts">
+    import gsap from 'gsap';
     import { type DOMElement, type DOMElementBounds } from '../../types/types';
-    import { provide, useTemplateRef, type Ref, type StyleValue } from 'vue';
+    import { provide, useTemplateRef, type CSSProperties, type Ref } from 'vue';
 
     defineProps<{
         visible: boolean;
         elBounds: DOMElementBounds;
-        activeStyle: StyleValue;
+        overlayStyle: CSSProperties;
     }>();
 
     const overlayEl = useTemplateRef<DOMElement>('overlayEl');
@@ -16,33 +17,28 @@
     }>({
         el: overlayEl,
     });
+
+    function onDragEnd(el: Element, done: () => void) {
+        gsap.to(el, {
+            duration: 0.1,
+            delay: 0.05,
+            x: 0,
+            y: 0,
+            ease: 'linear',
+            onComplete: done
+        });
+    }
 </script>
 
 <template>
-    <Transition name="drag">
+    <Transition name="drag" :css="false" :duration="0.15" @leave="onDragEnd">
         <div
             v-if="visible"
             ref="overlayEl"
-            class="touch-none fixed select-none cursor-pointer z-[1000] drag-overlay"
-            :style="activeStyle"
+            class="touch-none fixed select-none cursor-pointer z-[1000]"
+            :style="overlayStyle"
         >
             <slot />
         </div>
     </Transition>
 </template>
-
-<style scoped>
-.drag-overlay {
-    transform: var(--drag-transform, translate(0px, 0px));
-}
-
-.drag-leave-active {
-    transition-property: transform;
-    transition-duration: 0.15s;
-    transition-timing-function: ease-out;
-}
-
-.drag-leave-to {
-    transform: translate(0px, 0px);
-}
-</style>
