@@ -6,15 +6,13 @@
 
     const props = withDefaults(
         defineProps<{
-            value: DraggableItem;
+            item: DraggableItem;
             options?: UseDraggableOptions;
             asHandle?: boolean;
-            overlay?: boolean;
         }>(),
         {
             options: () => ({}),
-            asHandle: true,
-            asOverlay: true,
+            asHandle: true
         },
     );
 
@@ -29,7 +27,7 @@
     const { rect, isDragging, overlayStyle, registerHandle } = useDraggable(
         draggableRef,
         overlayEl,
-        props.value,
+        props.item,
         containerId,
         props.options,
     );
@@ -42,7 +40,7 @@
         ref="draggableEl"
         class="touch-none select-none cursor-pointer z-30"
         v-bind="$attrs"
-        :style="activeStyles ? activeStyles[value.id] : undefined"
+        :style="activeStyles ? activeStyles[item.id] : undefined"
     >
         <slot />
     </div>
@@ -51,7 +49,7 @@
             ref="overlayComponent"
             :visible="isDragging"
             :elBounds="rect"
-            :activeStyle="overlayStyle"
+            :overlayStyle="overlayStyle"
         >
             <slot name="overlay">
                 <div v-bind="$attrs">

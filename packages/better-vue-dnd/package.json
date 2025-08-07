@@ -1,8 +1,8 @@
 {
   "name": "better-vue-dnd",
-  "version": "0.0.2",
+  "version": "0.0.2-beta.1",
   "author": "https://dawidowich.com",
-  "description": "A Vue 3 drag and drop library with a focus on simplicity and performance.",
+  "description": "A Vue 3 drag and drop library.",
   "license": "MIT",
   "private": false,
   "repository": {
@@ -17,29 +17,14 @@
   "main": "./dist/better-vue-dnd.umd.js",
   "module": "./dist/better-vue-dnd.js",
   "types": "./dist/index.d.ts",
+  "style": "./dist/better-vue-dnd.css",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/better-vue-dnd.js",
       "require": "./dist/better-vue-dnd.umd.js"
     },
-    "./style.css": "./dist/style.css"
-  },
-  "publishConfig": {
-    "main": "./dist/better-vue-dnd.umd.js",
-    "module": "./dist/better-vue-dnd.js",
-    "types": "./dist/index.d.ts",
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/better-vue-dnd.js",
-        "require": "./dist/better-vue-dnd.umd.js"
-      },
-      "./style.css": "./dist/style.css"
-    },
-    "directory": "dist",
-    "linkDirectory": false,
-    "access": "public"
+    "./style.css": "./dist/better-vue-dnd.css"
   },
   "scripts": {
     "dev": "vite",
@@ -48,19 +33,20 @@
   },
   "peerDependencies": {
     "@vueuse/core": "^13.3.0",
-    "@vitejs/plugin-vue": "^6.0.0",
     "lucide-vue-next": "^0.525.0",
     "mitt": "^3.0.1",
     "pinia": "^3.0.3",
-    "vite": "^7.0.0",
-    "vue": "^3.5.13"
+    "vite": "^7.0.2",
+    "vue": "^3.5.13",
+    "gsap": "^3.13.0"
   },
   "devDependencies": {
+    "@tsconfig/node22": "^22.0.2",
+    "@types/node": "^22.15.32",
+    "@vitejs/plugin-vue": "^6.0.0",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.5.1",
     "@vue/tsconfig": "^0.7.0",
-    "@tsconfig/node22": "^22.0.2",
-    "@types/node": "^22.15.32",
     "eslint": "^9.29.0",
     "eslint-plugin-vue": "~10.2.0",
     "jiti": "^2.4.2",
