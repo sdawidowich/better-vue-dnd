@@ -18,16 +18,16 @@
         },
     );
 
-    const draggableEl = useTemplateRef<DOMElement>('draggableEl');
-    const overlayComponent = useTemplateRef<InstanceType<typeof DraggableOverlay>>('overlayComponent');
+    const draggableRef = useTemplateRef<DOMElement>('draggableEl');
+    const overlayRef = useTemplateRef<InstanceType<typeof DraggableOverlay>>('overlayComponent');
     const overlayEl = computed<DOMElement>(() =>
-        overlayComponent.value ? overlayComponent.value.el : null,
+        overlayRef.value ? overlayRef.value.el : null,
     );
     const containerId = inject<Ref<string | undefined> | undefined>('containerId');
     const activeStyles = inject<Ref<Record<string, StyleValue>> | undefined>('activeStyles');
 
     const { rect, isDragging, overlayStyle, registerHandle } = useDraggable(
-        draggableEl,
+        draggableRef,
         overlayEl,
         props.value,
         containerId,

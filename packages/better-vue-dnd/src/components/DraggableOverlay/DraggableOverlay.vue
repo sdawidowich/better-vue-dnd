@@ -8,13 +8,13 @@
         activeStyle: StyleValue;
     }>();
 
-    const overlayEl = useTemplateRef<DOMElement>('overlayEl');
+    const overlayRef = useTemplateRef<DOMElement>('overlayEl');
 
     provide('inOverlay', true);
     defineExpose<{
         el: Ref<DOMElement>;
     }>({
-        el: overlayEl,
+        el: overlayRef,
     });
 </script>
 

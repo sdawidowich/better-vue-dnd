@@ -7,13 +7,13 @@
         icon?: string;
     }>();
 
-    const handleEl = useTemplateRef<DOMElement>('handleEl');
+    const handleRef = useTemplateRef<DOMElement>('handleEl');
     const registerHandle = inject<(handleEl: DOMElement) => void | undefined>('registerHandle');
     const inOverlay = inject<boolean>('inOverlay', false);
 
     onMounted(() => {
-        if (handleEl.value && registerHandle && !inOverlay) {
-            registerHandle(handleEl.value);
+        if (handleRef.value && registerHandle && !inOverlay) {
+            registerHandle(handleRef.value);
         }
     });
 </script>

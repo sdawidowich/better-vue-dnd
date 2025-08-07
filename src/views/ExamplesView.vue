@@ -61,7 +61,7 @@
             }
         ];
     }
-    
+
 </script>
 
 <template>
@@ -76,7 +76,7 @@
                 </Draggable>
             </template>
         </SortableContainer>
-        
+
         <h2>Snap to Cursor</h2>
         <SortableContainer v-model:items="itemsList[1]" class="flex flex-col gap-2 p-4 bg-neutral-800 border-2 border-neutral-600">
             <template #item="slotProps">
@@ -85,7 +85,7 @@
                 </Draggable>
             </template>
         </SortableContainer>
-        
+
         <h2>Horizontal Axis Sorting</h2>
         <SortableContainer v-model:items="itemsList[2]" class="flex gap-2 p-4 bg-neutral-800 border-2 border-neutral-600">
             <template #item="slotProps">
@@ -94,7 +94,7 @@
                 </Draggable>
             </template>
         </SortableContainer>
-        
+
         <h2>Vertical Axis Sorting</h2>
         <SortableContainer v-model:items="itemsList[3]" class="flex flex-col gap-2 p-4 bg-neutral-800 border-2 border-neutral-600">
             <template #item="slotProps">
@@ -103,7 +103,7 @@
                 </Draggable>
             </template>
         </SortableContainer>
-        
+
         <h2>Sorting with a handle</h2>
         <SortableContainer v-model:items="itemsList[4]" class="flex flex-col gap-2 p-4 bg-neutral-800 border-2 border-neutral-600">
             <template #item="slotProps">
@@ -113,7 +113,7 @@
                 </Draggable>
             </template>
         </SortableContainer>
-        
+
         <h2>Custom overlay</h2>
         <SortableContainer v-model:items="itemsList[5]" class="flex flex-col gap-2 p-4 bg-neutral-800 border-2 border-neutral-600">
             <template #item="slotProps">
@@ -121,13 +121,13 @@
                     {{ slotProps.item?.text }}
                     <template #overlay>
                         <div class="p-2 bg-neutral-400 border-neutral-400 opacity-30 h-full">
-                            
+
                         </div>
                     </template>
                 </Draggable>
             </template>
         </SortableContainer>
-        
+
         <h2>Custom overlay</h2>
         <SortableContainer v-model:items="itemsList[6]" class="grid grid-cols-3 gap-2 p-4 bg-neutral-800 border-2 border-neutral-600">
             <template #item="slotProps">
@@ -135,7 +135,7 @@
                     {{ slotProps.item?.text }}
                     <template #overlay>
                         <div class="p-2 bg-neutral-400 border-neutral-400 opacity-30 h-full">
-                            
+
                         </div>
                     </template>
                 </Draggable>

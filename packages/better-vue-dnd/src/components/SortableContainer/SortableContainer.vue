@@ -8,8 +8,8 @@
         default: () => [],
     });
 
-    const containerEl = useTemplateRef<DOMElement>('containerEl');
-    const { containerId, activeStyles } = useSortable(containerEl, itemsModel, props);
+    const containerRef = useTemplateRef<DOMElement>('containerEl');
+    const { containerId, activeStyles } = useSortable(containerRef, itemsModel, props);
 
     provide<Ref<string | undefined>>('containerId', containerId);
     provide<Ref<Record<string, StyleValue>>>('activeStyles', activeStyles);
