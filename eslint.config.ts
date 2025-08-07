@@ -16,10 +16,10 @@ export default defineConfigWithVueTs(
     {
         name: 'app/files-to-lint',
         files: ['**/*.{ts,mts,tsx,vue}'],
-        rules: { 
+        rules: {
             'vue/multi-word-component-names': 'off',
             '@typescript-eslint/no-explicit-any': 'off',
-            'vue/attribute-hyphenation': 'off'
+            'vue/attribute-hyphenation': 'off',
         },
     },
 )

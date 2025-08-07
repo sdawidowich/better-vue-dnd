@@ -25,7 +25,7 @@ export default defineConfig({
             external: [
                 ...Object.keys(pkg.peerDependencies ?? {}),
             ],
-            output: { 
+            output: {
                 exports: 'named',
                 globals: {
                     vue: 'Vue',
@@ -33,6 +33,7 @@ export default defineConfig({
                     mitt: 'Mitt',
                     '@vueuse/core': 'VueUse',
                     '@vitejs/plugin-vue': 'ViteJs',
+                    'gsap': 'Gsap'
                 }
             },
         },

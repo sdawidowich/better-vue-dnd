@@ -189,7 +189,6 @@ export function useDraggable(
 
 
         updateTargetBounding();
-        console.log(draggableEl.value)
 
         const container = toValue(containerElement);
         const containerRect = container?.getBoundingClientRect?.();
