@@ -33,7 +33,8 @@ export default defineConfig({
                     mitt: 'Mitt',
                     '@vueuse/core': 'VueUse',
                     '@vitejs/plugin-vue': 'ViteJs',
-                    'gsap': 'Gsap'
+                    'gsap': 'Gsap',
+                    'lucide-vue-next': 'LucideVueNext',
                 }
             },
         },
