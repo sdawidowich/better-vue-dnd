@@ -113,7 +113,7 @@ export function useDraggable(
 
     const throttledEmit = useThrottleFn(
         (type: keyof Events, event: DndDragEvent) => eventBus.emit(type, event),
-        75,
+        25,
     );
 
     function AddEventListeners() {
@@ -189,7 +189,6 @@ export function useDraggable(
 
 
         updateTargetBounding();
-        console.log(draggableEl.value)
 
         const container = toValue(containerElement);
         const containerRect = container?.getBoundingClientRect?.();

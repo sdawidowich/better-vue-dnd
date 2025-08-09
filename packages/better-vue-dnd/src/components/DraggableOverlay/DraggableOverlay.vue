@@ -9,13 +9,13 @@
         overlayStyle: CSSProperties;
     }>();
 
-    const overlayEl = useTemplateRef<DOMElement>('overlayEl');
+    const overlayRef = useTemplateRef<DOMElement>('overlayEl');
 
     provide('inOverlay', true);
     defineExpose<{
         el: Ref<DOMElement>;
     }>({
-        el: overlayEl,
+        el: overlayRef,
     });
 
     function onDragEnd(el: Element, done: () => void) {

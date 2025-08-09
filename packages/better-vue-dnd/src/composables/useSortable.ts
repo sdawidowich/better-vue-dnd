@@ -6,11 +6,7 @@ import { reorderItems } from '../utils/utils';
 
 export type UseSortableReturn = ReturnType<typeof useSortable>;
 
-export function useSortable(
-    sortableEl: Ref<DOMElement>,
-    items: ModelRef<DraggableItem[]>,
-    options: DroppableOptions,
-) {
+export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<DraggableItem[]>, options: DroppableOptions) {
     const dndContext = useDndContext();
     const eventBus = useEventBus();
     const containerId = ref<string | undefined>(undefined);
@@ -30,7 +26,7 @@ export function useSortable(
 
                 styles[newItem.id] = {
                     transform: `translate(${(originalItemRect?.left ?? 0) - (newItemRect?.left ?? 0)}px, ${(originalItemRect?.top ?? 0) - (newItemRect?.top ?? 0)}px)`,
-                    transition: 'transform 0.15s linear',
+                    transition: 'transform 0.1s linear',
                 };
             }
 
@@ -41,11 +37,7 @@ export function useSortable(
     });
 
     function HandleDragEvent(event: DndDragEvent) {
-        if (
-            event.activeContainerId === containerId.value &&
-            event.draggableOver &&
-            event.activeId !== event.draggableOver
-        ) {
+        if (event.activeContainerId === containerId.value && event.draggableOver && event.activeId !== event.draggableOver) {
             reorderItems(tmpItems, event.activeId, event.draggableOver);
 
             const newBoundingRects: Record<string, DOMElementBounds> = {};

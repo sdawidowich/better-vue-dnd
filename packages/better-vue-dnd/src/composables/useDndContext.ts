@@ -42,30 +42,47 @@ export const useDndContext = defineStore('dndContext', () => {
         delete draggables.value[id];
     }
 
-    function getContainerOver(overlay: DeepReadonly<Ref<DOMElement>>): string | undefined {
-        const collisionDetection = useCollisionDetection(overlay);
-        const containerArr = Object.values(containers.value);
-        const closestIndex = collisionDetection.closestElement(containerArr.map((dz) => dz.el));
-        const closestContainer = closestIndex !== null ? containerArr[closestIndex] : null;
-
-        if (!closestContainer || !collisionDetection.collidesWith(closestContainer.el)) {
+    function getContainerOver(overlayEl: DeepReadonly<Ref<DOMElement>>): string | undefined {
+        const overlayBoundingRect = overlayEl.value?.getBoundingClientRect();
+        if (!overlayBoundingRect) {
             return;
         }
 
-        return closestContainer.id;
+        const collisionDetection = useCollisionDetection(overlayBoundingRect);
+        const containerArr = Object.values(containers.value);
+        const closestIndex = collisionDetection.closestElement(
+            containerArr
+                .map((dz) => dz.el?.getBoundingClientRect())
+                .filter((rect) => rect !== undefined),
+        )
+        const closestContainer = closestIndex !== null ? containerArr[closestIndex] : null
+
+        if (closestContainer?.el?.getBoundingClientRect() === undefined || !collisionDetection.collidesWith(closestContainer.el?.getBoundingClientRect())) {
+            return;
+        }
+
+        return closestContainer.id
     }
 
-    function getDraggableOver(overlay: DeepReadonly<Ref<DOMElement>>): string | undefined {
-        const collisionDetection = useCollisionDetection(overlay);
-        const draggableArr = Object.values(draggables.value);
-        const closestIndex = collisionDetection.closestElement(draggableArr.map((db) => db.el));
-        const closestDraggable = closestIndex !== null ? draggableArr[closestIndex] : null;
-
-        if (!closestDraggable || !collisionDetection.collidesWith(closestDraggable.el)) {
+    function getDraggableOver(overlayEl: DeepReadonly<Ref<DOMElement>>): string | undefined {
+        const overlayBoundingRect = overlayEl.value?.getBoundingClientRect();
+        if (!overlayBoundingRect) {
             return;
         }
 
-        return closestDraggable.id;
+        const collisionDetection = useCollisionDetection(overlayBoundingRect);
+        const draggableArr = Object.keys(overylayBoundingRects.value).map((id) => ({
+            id: id,
+            rect: overylayBoundingRects.value[id],
+        }))
+        const closestIndex = collisionDetection.closestElement(draggableArr.map((dz) => dz.rect))
+        const closestDraggable = closestIndex !== null ? draggableArr[closestIndex] : null
+
+        if (!closestDraggable || !collisionDetection.collidesWith(closestDraggable.rect)) {
+            return
+        }
+
+        return closestDraggable.id
     }
 
     function calculateBoundingRects(itemIds: string[]) {
