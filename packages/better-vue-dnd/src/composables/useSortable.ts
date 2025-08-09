@@ -26,7 +26,7 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
 
                 styles[newItem.id] = {
                     transform: `translate(${(originalItemRect?.left ?? 0) - (newItemRect?.left ?? 0)}px, ${(originalItemRect?.top ?? 0) - (newItemRect?.top ?? 0)}px)`,
-                    transition: 'transform 0.1s linear',
+                    transition: 'transform 0.15s ease-in-out',
                 };
             }
 

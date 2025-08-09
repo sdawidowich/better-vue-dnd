@@ -1,15 +1,18 @@
 <script setup lang="ts">
-    import { RouterLink, RouterView } from 'vue-router'
+    import { RouterView } from 'vue-router'
+    import NavItem from './components/NavItem.vue';
 </script>
 
 <template>
-    <header>
-        <div>
-            <nav>
-                <RouterLink to="/">Home</RouterLink>
-                <RouterLink to="/examples">Examples</RouterLink>
-            </nav>
-        </div>
-    </header>
-    <RouterView />
+    <div class="flex flex-col gap-4">
+        <header>
+            <div>
+                <nav class="flex items-center gap-2">
+                    <NavItem to="/" label="Home" />
+                    <NavItem to="/examples" label="Examples" />
+                </nav>
+            </div>
+        </header>
+        <RouterView />
+    </div>
 </template>
