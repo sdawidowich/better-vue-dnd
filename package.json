@@ -7,8 +7,9 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "build": "run-s type-check build:lib build-only",
     "preview": "vite preview",
+    "build:lib": "pnpm -F better-vue-dnd build",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
