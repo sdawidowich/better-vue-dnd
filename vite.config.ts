@@ -16,6 +16,9 @@ export default defineConfig({
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
         },
-        dedupe: ['vue']
+        dedupe: ['vue'],
+    },
+    optimizeDeps: {
+        include: ['better-vue-dnd'],
     },
 })
