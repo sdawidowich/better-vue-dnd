@@ -18,9 +18,7 @@
 
     const draggableRef = useTemplateRef<DOMElement>('draggableEl');
     const overlayRef = useTemplateRef<InstanceType<typeof DraggableOverlay>>('overlayComponent');
-    const overlayEl = computed<DOMElement>(() =>
-        overlayRef.value ? overlayRef.value.el : null,
-    );
+    const overlayEl = computed<DOMElement>(() => overlayRef.value?.el ?? null);
     const containerId = inject<Ref<string | undefined> | undefined>('containerId');
     const activeStyles = inject<Ref<Record<string, StyleValue>> | undefined>('activeStyles');
 

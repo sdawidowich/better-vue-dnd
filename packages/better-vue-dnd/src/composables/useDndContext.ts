@@ -1,6 +1,6 @@
 import type { DndDragEvent, DroppableOptions, DndContainer, DndDraggable, DOMElement, DOMElementBounds } from '../types/types';
 import { defineStore } from 'pinia';
-import { computed, onMounted, onUnmounted, ref, useId, type DeepReadonly, type Ref } from 'vue';
+import { computed, ref, useId, type DeepReadonly, type Ref } from 'vue';
 import { useCollisionDetection } from './useCollisionDetection';
 import { useEventBus } from './useEventBus';
 
@@ -138,6 +138,11 @@ export const useDndContext = defineStore('dndContext', () => {
         active.value = event.activeId;
         draggableBoundingRects.value = calculateBoundingRects(Object.keys(draggables.value));
         overylayBoundingRects.value = { ...draggableBoundingRects.value };
+
+        console.log('Drag started');
+        console.log(draggables.value);
+        console.log(draggableBoundingRects.value);
+        console.log(overylayBoundingRects.value);
     }
 
     function OnMove(event: DndDragEvent) {
@@ -154,17 +159,10 @@ export const useDndContext = defineStore('dndContext', () => {
         overylayBoundingRects.value = {};
     }
 
-    onMounted(() => {
-        eventBus.listen('draggable:startdrag', OnDragStart);
-        eventBus.listen('draggable:enddrag', OnDragEnd);
-        eventBus.listen('draggable:move', OnMove);
-    });
-
-    onUnmounted(() => {
-        eventBus.unlisten('draggable:startdrag', OnDragStart);
-        eventBus.unlisten('draggable:enddrag', OnDragEnd);
-        eventBus.unlisten('draggable:move', OnMove);
-    });
+    // Register event listeners
+    eventBus.listen('draggable:startdrag', OnDragStart);
+    eventBus.listen('draggable:enddrag', OnDragEnd);
+    eventBus.listen('draggable:move', OnMove);
 
     return {
         isDragging: computed(() => !!active.value),
