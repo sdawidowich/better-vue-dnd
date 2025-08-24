@@ -7,9 +7,9 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "run-s type-check build:lib build-only",
+    "build": "run-s type-check build:packages build-only",
     "preview": "vite preview",
-    "build:lib": "pnpm -F better-vue-dnd build",
+    "build:packages": "pnpm --filter better-vue-dnd build",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@vueuse/core": "^13.3.0",
-    "better-vue-dnd": "0.0.3-beta.1",
+    "better-vue-dnd": "workspace:*",
     "gsap": "^3.13.0",
     "lucide-vue-next": "^0.525.0",
     "mitt": "^3.0.1",
@@ -43,10 +43,5 @@
     "vite": "^7.0.2",
     "vite-plugin-vue-devtools": "^7.7.7",
     "vue-tsc": "^2.2.8"
-  },
-  "pnpm": {
-    "overrides": {
-      "better-vue-dnd": "link:packages/better-vue-dnd"
-    }
   }
 }

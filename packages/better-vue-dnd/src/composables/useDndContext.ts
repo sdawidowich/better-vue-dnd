@@ -138,11 +138,6 @@ export const useDndContext = defineStore('dndContext', () => {
         active.value = event.activeId;
         draggableBoundingRects.value = calculateBoundingRects(Object.keys(draggables.value));
         overylayBoundingRects.value = { ...draggableBoundingRects.value };
-
-        console.log('Drag started');
-        console.log(draggables.value);
-        console.log(draggableBoundingRects.value);
-        console.log(overylayBoundingRects.value);
     }
 
     function OnMove(event: DndDragEvent) {

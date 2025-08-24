@@ -1,6 +1,3 @@
 packages:
   - /
   - packages/*
-
-overrides:
-  better-vue-dnd: link:packages/better-vue-dnd
