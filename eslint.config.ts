@@ -16,10 +16,17 @@ export default defineConfigWithVueTs(
     {
         name: 'app/files-to-lint',
         files: ['**/*.{ts,mts,tsx,vue}'],
+
+        languageOptions: {
+            parserOptions: {
+                tsconfigRootDir: import.meta.dirname, // Or __dirname in CJS
+            },
+        },
+
         rules: {
             'vue/multi-word-component-names': 'off',
             '@typescript-eslint/no-explicit-any': 'off',
             'vue/attribute-hyphenation': 'off',
         },
     },
-)
+);

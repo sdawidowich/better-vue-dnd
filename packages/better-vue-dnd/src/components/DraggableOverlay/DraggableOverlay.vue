@@ -35,7 +35,7 @@
         <div
             v-if="visible"
             ref="overlayEl"
-            class="touch-none fixed select-none cursor-pointer z-[1000]"
+            class="touch-none fixed select-none cursor-pointer z-[1000] grid"
             :style="overlayStyle"
         >
             <slot />
