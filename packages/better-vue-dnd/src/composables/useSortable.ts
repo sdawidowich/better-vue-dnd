@@ -19,15 +19,14 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
             const styles: Record<string, StyleValue> = {};
 
             for (let i = 0; i < tmpItems.value.length; i++) {
-                const originalItem = items.value[i];
-                const originalItemRect = dndContext.draggableBoundingRects[originalItem.id];
                 const newItem = tmpItems.value[i];
-                const newItemRect = dndContext.draggableBoundingRects[newItem.id];
+                const originalItemRect = dndContext.draggableBoundingRects[newItem.id];
+                const newItemRect = dndContext.overylayBoundingRects[newItem.id];
 
                 styles[newItem.id] = {
-                    transform: `translate(${(originalItemRect?.left ?? 0) - (newItemRect?.left ?? 0)}px, ${(originalItemRect?.top ?? 0) - (newItemRect?.top ?? 0)}px)`,
+                    transform: `translate(${(newItemRect?.left ?? 0) - (originalItemRect?.left ?? 0)}px, ${(newItemRect?.top ?? 0) - (originalItemRect?.top ?? 0)}px)`,
                     transition: 'transform 0.15s ease-in-out',
-                };
+                }
             }
 
             return styles;
@@ -37,18 +36,35 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
     });
 
     function HandleDragEvent(event: DndDragEvent) {
+        // Reorder items if over this container and active draggable is not over itself
         if (event.activeContainerId === containerId.value && event.draggableOver && event.activeId !== event.draggableOver) {
             reorderItems(tmpItems, event.activeId, event.draggableOver);
 
+            let xOffset = 0;
+            let yOffset = 0;
             const newBoundingRects: Record<string, DOMElementBounds> = {};
             for (let i = 0; i < tmpItems.value.length; i++) {
                 const originalItem = items.value[i];
                 const newItem = tmpItems.value[i];
 
-                newBoundingRects[newItem.id] = dndContext.draggableBoundingRects[originalItem.id];
+                const originalItemRect = dndContext.draggableBoundingRects[originalItem.id];
+                const newItemRect = { ...dndContext.draggableBoundingRects[newItem.id] };
+
+                newItemRect.left = originalItemRect.left + xOffset;
+                newItemRect.top = originalItemRect.top + yOffset;
+                newItemRect.x = originalItemRect.x + xOffset;
+                newItemRect.y = originalItemRect.y + yOffset;
+
+                newBoundingRects[newItem.id] = newItemRect;
+
+                xOffset += newItemRect.width - originalItemRect.width;
+                yOffset += newItemRect.height - originalItemRect.height;
             }
 
             dndContext.updateOverlayBoundingRects(newBoundingRects);
+        }
+        else if (event.activeContainerId !== containerId.value) {
+
         }
     }
 
@@ -68,18 +84,24 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
     }
 
     onMounted(() => {
+        // Listen to drag events
         eventBus.listen('draggable:startdrag', OnDragStart);
         eventBus.listen('draggable:enddrag', OnDragEnd);
         eventBus.listen('draggable:move', OnMove);
+
+        // Register the container with dnd context
         if (sortableEl.value) {
             containerId.value = dndContext.registerContainer(sortableEl, options);
         }
     });
 
     onUnmounted(() => {
+        // Unlisten drag events
         eventBus.unlisten('draggable:startdrag', OnDragStart);
         eventBus.unlisten('draggable:enddrag', OnDragEnd);
         eventBus.unlisten('draggable:move', OnMove);
+
+        // Unregister the container with dnd context
         if (containerId.value) {
             dndContext.unregisterContainer(containerId.value);
         }

@@ -10,7 +10,7 @@
     const handleRef = useTemplateRef<DOMElement>('handleEl');
     const registerHandle = inject<(handleEl: DOMElement) => void | undefined>('registerHandle');
     const inOverlay = inject<boolean>('inOverlay', false);
-
+    
     onMounted(() => {
         if (handleRef.value && registerHandle && !inOverlay) {
             registerHandle(handleRef.value);

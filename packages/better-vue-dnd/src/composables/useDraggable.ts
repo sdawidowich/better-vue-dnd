@@ -113,7 +113,7 @@ export function useDraggable(
 
     const throttledEmit = useThrottleFn(
         (type: keyof Events, event: DndDragEvent) => eventBus.emit(type, event),
-        25,
+        0,
     );
 
     function AddEventListeners() {
