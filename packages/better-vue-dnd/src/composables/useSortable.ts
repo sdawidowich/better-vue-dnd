@@ -40,6 +40,7 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
         if (event.activeContainerId === containerId.value && event.draggableOver && event.activeId !== event.draggableOver) {
             reorderItems(tmpItems, event.activeId, event.draggableOver);
 
+            // Store offsets for different sized items
             let xOffset = 0;
             let yOffset = 0;
             const newBoundingRects: Record<string, DOMElementBounds> = {};
@@ -50,13 +51,16 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
                 const originalItemRect = dndContext.draggableBoundingRects[originalItem.id];
                 const newItemRect = { ...dndContext.draggableBoundingRects[newItem.id] };
 
+                // Update new item rect position based on original item and offsets
                 newItemRect.left = originalItemRect.left + xOffset;
                 newItemRect.top = originalItemRect.top + yOffset;
                 newItemRect.x = originalItemRect.x + xOffset;
                 newItemRect.y = originalItemRect.y + yOffset;
 
+                // Set bounding rect for new item
                 newBoundingRects[newItem.id] = newItemRect;
 
+                // Update offsets for next item
                 xOffset += newItemRect.width - originalItemRect.width;
                 yOffset += newItemRect.height - originalItemRect.height;
             }

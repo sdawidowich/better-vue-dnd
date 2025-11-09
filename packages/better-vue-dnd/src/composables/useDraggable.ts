@@ -111,11 +111,6 @@ export function useDraggable(
         return true;
     };
 
-    const throttledEmit = useThrottleFn(
-        (type: keyof Events, event: DndDragEvent) => eventBus.emit(type, event),
-        0,
-    );
-
     function AddEventListeners() {
         if (isClient) {
             cleanupListeners.value?.();
@@ -143,8 +138,6 @@ export function useDraggable(
 
     function updatePos(e: PointerEvent) {
         if (!pressedDelta.value) return;
-
-        updateTargetBounding();
 
         const container = toValue(containerElement);
         let { x, y } = position.value;
@@ -190,9 +183,6 @@ export function useDraggable(
 
         updateTargetBounding();
 
-        console.log(draggableEl.value?.getBoundingClientRect());
-        console.log(targetRect.value);
-
         const container = toValue(containerElement);
         const containerRect = container?.getBoundingClientRect?.();
         const delta = {
@@ -232,7 +222,7 @@ export function useDraggable(
         onMove?.(position.value, e);
         handleEvent(e);
 
-        throttledEmit('draggable:move', {
+        eventBus.emit('draggable:move', {
             activeId: item.id,
             activeContainerId: containerId?.value,
             containerOver: dndContext.getContainerOver(overlayEl),
