@@ -1,9 +1,9 @@
 <script setup lang="ts">
     import { useSortable } from '../../composables/useSortable';
-    import type { DOMElement, DraggableItem, DroppableOptions } from '../../types/types';
+    import type { DOMElement, DraggableItem, DndContainerOptions } from '../../types/types';
     import { provide, useTemplateRef, type Ref, type StyleValue } from 'vue';
 
-    const props = defineProps<DroppableOptions>();
+    const props = defineProps<DndContainerOptions>();
     const itemsModel = defineModel<DraggableItem[]>('items', {
         default: () => [],
     });

@@ -43,8 +43,7 @@ export function useCollisionDetection(refRect: DOMElementBounds) {
                 return
             }
             const distance = Math.sqrt(
-                Math.pow(refRectCenter.x - rect2Center.x, 2) +
-                    Math.pow(refRectCenter.y - rect2Center.y, 2),
+                Math.pow(refRectCenter.x - rect2Center.x, 2) + Math.pow(refRectCenter.y - rect2Center.y, 2)
             )
 
             if (distance < closestDistance) {

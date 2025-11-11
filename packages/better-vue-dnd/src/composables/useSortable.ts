@@ -1,4 +1,4 @@
-import type { DOMElementBounds, DndDragEvent, DOMElement, DraggableItem, DroppableOptions } from '../types/types';
+import type { DOMElementBounds, DndDragEvent, DOMElement, DraggableItem, DndContainerOptions } from '../types/types';
 import { computed, onMounted, onUnmounted, ref, type ModelRef, type Ref, type StyleValue } from 'vue';
 import { useDndContext } from './useDndContext';
 import { useEventBus } from './useEventBus';
@@ -6,7 +6,7 @@ import { reorderItems } from '../utils/utils';
 
 export type UseSortableReturn = ReturnType<typeof useSortable>;
 
-export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<DraggableItem[]>, options: DroppableOptions) {
+export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<DraggableItem[]>, options: DndContainerOptions) {
     const dndContext = useDndContext();
     const eventBus = useEventBus();
     const containerId = ref<string | undefined>(undefined);
@@ -95,7 +95,7 @@ export function useSortable(sortableEl: Ref<DOMElement>, items: ModelRef<Draggab
 
         // Register the container with dnd context
         if (sortableEl.value) {
-            containerId.value = dndContext.registerContainer(sortableEl, options);
+            containerId.value = dndContext.registerContainer(sortableEl, items, options);
         }
     });
 

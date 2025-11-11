@@ -1,4 +1,4 @@
-import type { DndDragEvent, DroppableOptions, DndContainer, DndDraggable, DOMElement, DOMElementBounds } from '../types/types';
+import type { DndDragEvent, DndContainerOptions, DndContainer, DndDraggable, DOMElement, DOMElementBounds, DraggableItem } from '../types/types';
 import { defineStore } from 'pinia';
 import { computed, ref, useId, type DeepReadonly, type Ref } from 'vue';
 import { useCollisionDetection } from './useCollisionDetection';
@@ -14,11 +14,13 @@ export const useDndContext = defineStore('dndContext', () => {
     const draggableBoundingRects = ref<Record<string, DOMElementBounds>>({});
     const overylayBoundingRects = ref<Record<string, DOMElementBounds>>({});
 
-    function registerContainer(el: Ref<DOMElement>, options: DroppableOptions) {
+    // Register and unregister functions
+    function registerContainer(el: Ref<DOMElement>, items: Ref<DraggableItem[]>, options: DndContainerOptions) {
         const id = useId();
         containers.value[id] = {
             id: id,
             el: el.value,
+            items: items,
             onMove: options.onMove,
             onDrop: options.onDrop,
             onHover: options.onHover,
@@ -42,6 +44,7 @@ export const useDndContext = defineStore('dndContext', () => {
         delete draggables.value[id];
     }
 
+    // Get container/draggable over functions
     function getContainerOver(overlayEl: DeepReadonly<Ref<DOMElement>>): string | undefined {
         const overlayBoundingRect = overlayEl.value?.getBoundingClientRect();
         if (!overlayBoundingRect) {
@@ -51,8 +54,7 @@ export const useDndContext = defineStore('dndContext', () => {
         const collisionDetection = useCollisionDetection(overlayBoundingRect);
         const containerArr = Object.values(containers.value);
         const closestIndex = collisionDetection.closestElement(
-            containerArr
-                .map((dz) => dz.el?.getBoundingClientRect())
+            containerArr.map((dz) => dz.el?.getBoundingClientRect())
                 .filter((rect) => rect !== undefined),
         )
         const closestContainer = closestIndex !== null ? containerArr[closestIndex] : null
@@ -85,6 +87,7 @@ export const useDndContext = defineStore('dndContext', () => {
         return closestDraggable.id
     }
 
+    // Bounding rect functions
     function calculateBoundingRects(itemIds: string[]) {
         const itemEls = getItemEls(itemIds);
 
@@ -108,6 +111,7 @@ export const useDndContext = defineStore('dndContext', () => {
         overylayBoundingRects.value = { ...overylayBoundingRects.value, ...newRects };
     }
 
+    // Getters
     function getItemEl(itemId: string) {
         return draggables.value[itemId]?.el;
     }
@@ -130,10 +134,7 @@ export const useDndContext = defineStore('dndContext', () => {
         return boundingRects;
     }
 
-    function SwapContainer(event: DndDragEvent) {
-        console.log(event);
-    }
-
+    // Event handlers
     function OnDragStart(event: DndDragEvent) {
         active.value = event.activeId;
         draggableBoundingRects.value = calculateBoundingRects(Object.keys(draggables.value));
@@ -142,6 +143,7 @@ export const useDndContext = defineStore('dndContext', () => {
 
     function OnMove(event: DndDragEvent) {
         if (event.activeContainerId !== event.containerOver) {
+            SwapContainer(event);
         }
     }
 
@@ -152,6 +154,26 @@ export const useDndContext = defineStore('dndContext', () => {
         }
 
         overylayBoundingRects.value = {};
+    }
+
+    function SwapContainer(event: DndDragEvent) {
+        const fromContainer = containers.value[event.activeContainerId!];
+        const toContainer = containers.value[event.containerOver!];
+
+        if (!fromContainer || !toContainer) {
+            return;
+        }
+
+        console.log(fromContainer.items)
+
+        const activeItemIndex = fromContainer.items.findIndex((item) => item.id === event.activeId);
+        if (activeItemIndex === -1) {
+            return;
+        }
+
+        const [movedItem] = fromContainer.items.splice(activeItemIndex, 1);
+        const index = 0;
+        toContainer.items.splice(index, 0, movedItem);
     }
 
     // Register event listeners

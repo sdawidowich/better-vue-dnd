@@ -1,8 +1,8 @@
-import type { Axis, DndDragEvent, DOMElement, DOMElementBounds, DraggableItem, PointerType, Position, } from '../types/types';
+import type { Axis, DOMElement, DOMElementBounds, DraggableItem, PointerType, Position, } from '../types/types';
 import { computed, onMounted, onUnmounted, ref, toValue, type CSSProperties, type DeepReadonly, type MaybeRefOrGetter, type Ref } from 'vue';
-import { useEventBus, type Events } from './useEventBus';
+import { useEventBus } from './useEventBus';
 import { useDndContext } from './useDndContext';
-import { defaultWindow, isClient, toRefs, useElementBounding, useEventListener, useThrottleFn } from '@vueuse/core';
+import { defaultWindow, isClient, toRefs, useElementBounding, useEventListener } from '@vueuse/core';
 
 export interface UseDraggableOptions {
     /* Prevent events defaults */
@@ -252,10 +252,11 @@ export function useDraggable(
     onMounted(() => {
         if (draggableEl.value) {
             dndContext.registerDraggable(draggableEl, item.id);
-        }
 
-        if (draggableEl.value && !draggingHandle.value) {
-            draggingHandle.value = draggableEl.value;
+            // Set initial dragging handle
+            if (!draggingHandle.value) {
+                draggingHandle.value = draggableEl.value;
+            }
         }
 
         AddEventListeners();
